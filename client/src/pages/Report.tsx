@@ -171,10 +171,10 @@ export default function ReportPage() {
                     <div className="space-y-3">
                       {/* Collect all failed checks from all sections */}
                       {[
-                        ...details.sections.seo.checks,
-                        ...details.sections.performance.checks,
-                        ...details.sections.security.checks,
-                        ...details.sections.mobile.checks,
+                        ...details.seo.checks,
+                        ...details.performance.checks,
+                        ...details.security.checks,
+                        ...details.mobile.checks,
                       ].filter(check => !check.passed && check.score < 50).length === 0 ? (
                         <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
                           <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
@@ -183,10 +183,10 @@ export default function ReportPage() {
                         </div>
                       ) : (
                         [
-                          ...details.sections.seo.checks,
-                          ...details.sections.performance.checks,
-                          ...details.sections.security.checks,
-                          ...details.sections.mobile.checks,
+                          ...details.seo.checks,
+                          ...details.performance.checks,
+                          ...details.security.checks,
+                          ...details.mobile.checks,
                         ]
                         .filter(check => !check.passed && check.score < 50)
                         .map((check, i) => (
@@ -220,7 +220,7 @@ export default function ReportPage() {
 
                   {/* Checks List */}
                   <div className="space-y-4">
-                    {details.sections[activeTab].checks.map((check, i) => (
+                    {(details[activeTab as keyof typeof details] as any).checks.map((check: any, i: number) => (
                       <CheckItem key={i} check={check} />
                     ))}
                   </div>

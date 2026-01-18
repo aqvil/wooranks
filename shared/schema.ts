@@ -47,12 +47,10 @@ export type AnalysisResult = {
     security: number;
     mobile: number;
   };
-  sections: {
-    seo: AnalysisSection;
-    performance: AnalysisSection;
-    security: AnalysisSection;
-    mobile: AnalysisSection;
-  };
+  seo: AnalysisSection;
+  performance: AnalysisSection;
+  security: AnalysisSection;
+  mobile: AnalysisSection;
 };
 
 export type CreateAnalysisRequest = {

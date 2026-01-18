@@ -168,32 +168,33 @@ export default function ReportPage() {
                       <AlertTriangle className="w-5 h-5 text-score-poor" />
                       Critical Issues to Fix
                     </h2>
-                    <div className="space-y-3">
-                      {/* Collect all failed checks from all sections */}
-                      {[
-                        ...details.seo.checks,
-                        ...details.performance.checks,
-                        ...details.security.checks,
-                        ...details.mobile.checks,
-                      ].filter(check => !check.passed && check.score < 50).length === 0 ? (
-                        <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
-                          <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                          <h3 className="text-lg font-bold text-green-800">Amazing job!</h3>
-                          <p className="text-green-700">No critical issues found on your website.</p>
-                        </div>
-                      ) : (
-                        [
+                      <div className="space-y-3">
+                        {/* Collect all failed checks from all sections */}
+                        {[
                           ...details.seo.checks,
                           ...details.performance.checks,
                           ...details.security.checks,
                           ...details.mobile.checks,
-                        ]
-                        .filter(check => !check.passed && check.score < 50)
-                        .map((check, i) => (
-                          <CheckItem key={i} check={check} />
-                        ))
-                      )}
-                    </div>
+                        ].filter(check => !check.passed).length === 0 ? (
+                          <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
+                            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                            <h3 className="text-lg font-bold text-green-800">Amazing job!</h3>
+                            <p className="text-green-700">No issues found on your website.</p>
+                          </div>
+                        ) : (
+                          [
+                            ...details.seo.checks,
+                            ...details.performance.checks,
+                            ...details.security.checks,
+                            ...details.mobile.checks,
+                          ]
+                          .filter(check => !check.passed)
+                          .sort((a, b) => (b.score || 0) - (a.score || 0))
+                          .map((check, i) => (
+                            <CheckItem key={i} check={check} />
+                          ))
+                        )}
+                      </div>
                   </div>
                 </div>
               ) : (

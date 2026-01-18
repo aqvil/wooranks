@@ -43,19 +43,35 @@ async function analyzeUrl(url: string): Promise<InsertReport> {
   const h1Count = $('h1').length;
   const h2Count = $('h2').length;
   const canonical = $('link[rel="canonical"]').attr('href');
+  const robots = $('meta[name="robots"]').attr('content');
   
   const seoChecks = [];
   let seoScore = 100;
 
+  // Robots.txt simulation (meta robots)
+  if (robots) {
+    seoChecks.push({ passed: true, score: 5, title: "Robots Meta Tag", description: `Robots tag found: ${robots}` });
+  } else {
+    seoChecks.push({ passed: true, score: 5, title: "Robots Meta Tag", description: "No robots meta tag (defaults to index, follow)." });
+  }
+
+  // Canonical
+  if (canonical) {
+    seoChecks.push({ passed: true, score: 5, title: "Canonical Tag", description: "Canonical URL is specified." });
+  } else {
+    seoScore -= 5;
+    seoChecks.push({ passed: false, score: 0, title: "Canonical Tag", description: "Missing canonical tag.", recommendation: "Add a canonical tag to prevent duplicate content issues." });
+  }
+
   // Title
-  if (title.length > 10 && title.length < 70) {
-    seoChecks.push({ passed: true, score: 10, title: "Title Tag", description: "Title tag is present and optimal length.", details: [title] });
+  if (title.length >= 10 && title.length <= 70) {
+    seoChecks.push({ passed: true, score: 15, title: "Title Tag", description: "Title tag is present and optimal length.", details: [title] });
   } else if (title.length > 0) {
-    seoScore -= 10;
-    seoChecks.push({ passed: false, score: 0, title: "Title Tag", description: "Title tag exists but is not optimal length (10-70 chars).", recommendation: "Optimize title length.", details: [`Current length: ${title.length}`, title] });
+    seoScore -= 5;
+    seoChecks.push({ passed: false, score: 0, title: "Title Tag", description: `Title tag exists but length is ${title.length} characters (10-70 recommended).`, recommendation: "Aim for 50-60 characters for best display in search results.", details: [title] });
   } else {
     seoScore -= 20;
-    seoChecks.push({ passed: false, score: 0, title: "Title Tag", description: "Missing title tag.", recommendation: "Add a title tag." });
+    seoChecks.push({ passed: false, score: 0, title: "Title Tag", description: "Missing title tag.", recommendation: "The title tag is one of the most important SEO factors. Add a unique, keyword-rich title." });
   }
 
   // Meta Description
@@ -127,23 +143,34 @@ async function analyzeUrl(url: string): Promise<InsertReport> {
   let performanceScore = 100;
   
   // TTFB (Simulated by total response time for now)
-  if (responseTime < 500) {
-    performanceChecks.push({ passed: true, score: 20, title: "Server Response Time", description: `Fast response time: ${responseTime}ms` });
-  } else if (responseTime < 1000) {
+  if (responseTime < 300) {
+    performanceChecks.push({ passed: true, score: 25, title: "Server Response Time", description: `Excellent response time: ${responseTime}ms` });
+  } else if (responseTime < 800) {
     performanceScore -= 10;
-    performanceChecks.push({ passed: true, score: 10, title: "Server Response Time", description: `Acceptable response time: ${responseTime}ms` });
+    performanceChecks.push({ passed: true, score: 15, title: "Server Response Time", description: `Good response time: ${responseTime}ms` });
   } else {
-    performanceScore -= 20;
-    performanceChecks.push({ passed: false, score: 0, title: "Server Response Time", description: `Slow response time: ${responseTime}ms`, recommendation: "Optimize backend processing or use caching." });
+    performanceScore -= 25;
+    performanceChecks.push({ passed: false, score: 0, title: "Server Response Time", description: `Slow response time: ${responseTime}ms`, recommendation: "Slow response times can hurt your SEO and user experience. Consider optimizing your server or using a CDN." });
   }
 
   // HTML Size
   const htmlSize = html.length;
-  if (htmlSize < 100 * 1024) { // 100KB
-    performanceChecks.push({ passed: true, score: 10, title: "Page Size", description: `HTML size is good: ${(htmlSize/1024).toFixed(2)}KB` });
+  if (htmlSize < 50 * 1024) { // 50KB
+    performanceChecks.push({ passed: true, score: 15, title: "Page Size", description: `Perfect HTML size: ${(htmlSize/1024).toFixed(2)}KB` });
+  } else if (htmlSize < 200 * 1024) {
+    performanceChecks.push({ passed: true, score: 10, title: "Page Size", description: `Acceptable HTML size: ${(htmlSize/1024).toFixed(2)}KB` });
+  } else {
+    performanceScore -= 15;
+    performanceChecks.push({ passed: false, score: 0, title: "Page Size", description: `Large HTML size: ${(htmlSize/1024).toFixed(2)}KB`, recommendation: "Reduce page weight by minifying HTML, CSS, and JS, and removing unnecessary scripts." });
+  }
+
+  // Gzip Compression (check headers)
+  const contentEncoding = headers.get('content-encoding');
+  if (contentEncoding?.includes('gzip') || contentEncoding?.includes('br')) {
+    performanceChecks.push({ passed: true, score: 10, title: "Compression", description: "Gzip/Brotli compression is active." });
   } else {
     performanceScore -= 10;
-    performanceChecks.push({ passed: false, score: 0, title: "Page Size", description: `HTML is large: ${(htmlSize/1024).toFixed(2)}KB`, recommendation: "Minify HTML and reduce inline scripts/styles." });
+    performanceChecks.push({ passed: false, score: 0, title: "Compression", description: "Compression is not enabled.", recommendation: "Enable Gzip or Brotli compression on your server to reduce file transfer sizes." });
   }
 
   // --- Security Checks ---
@@ -152,10 +179,27 @@ async function analyzeUrl(url: string): Promise<InsertReport> {
 
   // HTTPS
   if (url.startsWith('https')) {
-    securityChecks.push({ passed: true, score: 20, title: "HTTPS", description: "Site is served over HTTPS." });
+    securityChecks.push({ passed: true, score: 40, title: "SSL Certificate", description: "Secure connection detected (HTTPS)." });
   } else {
-    securityScore -= 50;
-    securityChecks.push({ passed: false, score: 0, title: "HTTPS", description: "Site is not using HTTPS.", recommendation: "Enable SSL/HTTPS immediately." });
+    securityScore -= 60;
+    securityChecks.push({ passed: false, score: 0, title: "SSL Certificate", description: "Unsecured connection (HTTP).", recommendation: "Install an SSL certificate to secure your site and improve search rankings." });
+  }
+
+  // Security Headers
+  const hsts = headers.get('strict-transport-security');
+  const xFrame = headers.get('x-frame-options');
+  if (hsts) {
+    securityChecks.push({ passed: true, score: 10, title: "HSTS Header", description: "Strict-Transport-Security header is present." });
+  } else {
+    securityScore -= 5;
+    securityChecks.push({ passed: false, score: 0, title: "HSTS Header", description: "HSTS header is missing.", recommendation: "Implement HSTS to force browsers to use HTTPS." });
+  }
+
+  if (xFrame) {
+    securityChecks.push({ passed: true, score: 10, title: "Clickjacking Protection", description: "X-Frame-Options header is present." });
+  } else {
+    securityScore -= 5;
+    securityChecks.push({ passed: false, score: 0, title: "Clickjacking Protection", description: "X-Frame-Options header is missing.", recommendation: "Add X-Frame-Options to prevent clickjacking attacks." });
   }
 
   // --- Mobile Checks ---
@@ -165,10 +209,19 @@ async function analyzeUrl(url: string): Promise<InsertReport> {
   // Viewport
   const viewport = $('meta[name="viewport"]').attr('content');
   if (viewport && viewport.includes('width=device-width')) {
-    mobileChecks.push({ passed: true, score: 20, title: "Viewport Meta Tag", description: "Viewport tag is optimized for mobile." });
+    mobileChecks.push({ passed: true, score: 40, title: "Mobile Viewport", description: "Website is optimized for mobile screen sizes." });
   } else {
-    mobileScore -= 50;
-    mobileChecks.push({ passed: false, score: 0, title: "Viewport Meta Tag", description: "Viewport tag missing or incorrect.", recommendation: "Add <meta name='viewport' content='width=device-width, initial-scale=1'>." });
+    mobileScore -= 60;
+    mobileChecks.push({ passed: false, score: 0, title: "Mobile Viewport", description: "Viewport tag is missing or incorrect.", recommendation: "Add a viewport meta tag to ensure your site is responsive on mobile devices." });
+  }
+
+  // Touch Icons
+  const touchIcon = $('link[rel*="apple-touch-icon"]').attr('href') || $('link[rel="icon"]').attr('href');
+  if (touchIcon) {
+    mobileChecks.push({ passed: true, score: 10, title: "Favicon/Touch Icon", description: "Website has a favicon or apple-touch-icon." });
+  } else {
+    mobileScore -= 10;
+    mobileChecks.push({ passed: false, score: 0, title: "Favicon/Touch Icon", description: "No favicon detected.", recommendation: "Add a favicon to improve brand recognition and user experience." });
   }
 
 

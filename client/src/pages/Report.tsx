@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useReport } from "@/hooks/use-reports";
 import { useRoute } from "wouter";
 import { ScoreGauge } from "@/components/ScoreGauge";
@@ -11,13 +11,58 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ReportPage() {
   const [, params] = useRoute("/report/:id");
   const id = params ? parseInt(params.id) : 0;
   const { data: report, isLoading, error } = useReport(id);
   const [activeTab, setActiveTab] = useState<"overview" | "seo" | "performance" | "mobile" | "security">("overview");
+  
+  const overviewRef = useRef<HTMLDivElement>(null);
+  const seoRef = useRef<HTMLDivElement>(null);
+  const performanceRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
+  const securityRef = useRef<HTMLDivElement>(null);
+
+  const sectionRefs = {
+    overview: overviewRef,
+    seo: seoRef,
+    performance: performanceRef,
+    mobile: mobileRef,
+    security: securityRef,
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200;
+
+      for (const [id, ref] of Object.entries(sectionRefs)) {
+        const element = ref.current;
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveTab(id as any);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (sectionId: keyof typeof sectionRefs) => {
+    const element = sectionRefs[sectionId].current;
+    if (element) {
+      const offset = element.offsetTop - 100;
+      window.scrollTo({
+        top: offset,
+        behavior: "smooth",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -93,10 +138,9 @@ export default function ReportPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Sidebar Navigation (Mobile: Horizontal Scroll, Desktop: Vertical Stack) */}
+          {/* Sidebar Navigation */}
           <div className="lg:col-span-3">
             <div className="sticky top-24 space-y-6">
-              {/* Overall Score Card */}
               <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex flex-col items-center text-center">
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Overall Score</h3>
                 <ScoreGauge score={report.overallScore} size="xl" showLabel={false} />
@@ -105,19 +149,18 @@ export default function ReportPage() {
                 </div>
               </div>
 
-              {/* Navigation Tabs */}
               <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-2 lg:pb-0 scrollbar-hide">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => scrollToSection(tab.id)}
                       className={cn(
                         "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap lg:w-full",
                         activeTab === tab.id 
                           ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                          : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
+                          : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
                       )}
                     >
                       {Icon && <Icon className="w-4 h-4" />}
@@ -129,105 +172,137 @@ export default function ReportPage() {
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-9">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {activeTab === "overview" ? (
-                <div className="space-y-8">
-                  {/* Category Scores Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { label: "SEO", score: report.seoScore, icon: Search },
-                      { label: "Performance", score: report.performanceScore, icon: Zap },
-                      { label: "Mobile", score: report.mobileScore, icon: Smartphone },
-                      { label: "Security", score: report.securityScore, icon: ShieldCheck },
-                    ].map((item) => (
-                      <div key={item.label} className="bg-card p-5 rounded-2xl border border-border shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setActiveTab(item.label.toLowerCase() as any)}>
-                        <item.icon className="w-6 h-6 text-muted-foreground" />
-                        <div className="text-center">
-                          <div className={cn("text-2xl font-bold mb-1", 
-                            item.score >= 80 ? "text-score-good" : 
-                            item.score >= 50 ? "text-score-average" : "text-score-poor"
-                          )}>
-                            {item.score}
-                          </div>
-                          <div className="text-xs font-semibold uppercase text-muted-foreground">{item.label}</div>
+          {/* Main Content Area - Scrolling Sections */}
+          <div className="lg:col-span-9 space-y-12 pb-24">
+            
+            {/* Overview Section */}
+            <section ref={overviewRef} className="scroll-mt-24">
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "SEO", score: report.seoScore, icon: Search, id: "seo" },
+                    { label: "Performance", score: report.performanceScore, icon: Zap, id: "performance" },
+                    { label: "Mobile", score: report.mobileScore, icon: Smartphone, id: "mobile" },
+                    { label: "Security", score: report.securityScore, icon: ShieldCheck, id: "security" },
+                  ].map((item) => (
+                    <button 
+                      key={item.label} 
+                      onClick={() => scrollToSection(item.id as any)}
+                      className="bg-card p-5 rounded-2xl border border-border shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md hover:border-primary/20 transition-all text-left w-full"
+                    >
+                      <item.icon className="w-6 h-6 text-muted-foreground" />
+                      <div className="text-center">
+                        <div className={cn("text-2xl font-bold mb-1", 
+                          item.score >= 80 ? "text-score-good" : 
+                          item.score >= 50 ? "text-score-average" : "text-score-poor"
+                        )}>
+                          {item.score}
                         </div>
+                        <div className="text-xs font-semibold uppercase text-muted-foreground">{item.label}</div>
                       </div>
-                    ))}
-                  </div>
+                    </button>
+                  ))}
+                </div>
 
-                  {/* Critical Issues Section */}
-                  <div>
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-score-poor" />
-                      Critical Issues to Fix
-                    </h2>
-                      <div className="space-y-3">
-                        {/* Collect all failed checks from all sections */}
-                        {[
-                          ...details.seo.checks,
-                          ...details.performance.checks,
-                          ...details.security.checks,
-                          ...details.mobile.checks,
-                        ].filter(check => !check.passed).length === 0 ? (
-                          <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
-                            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold text-green-800">Amazing job!</h3>
-                            <p className="text-green-700">No issues found on your website.</p>
-                          </div>
-                        ) : (
-                          [
-                            ...details.seo.checks,
-                            ...details.performance.checks,
-                            ...details.security.checks,
-                            ...details.mobile.checks,
-                          ]
-                          .filter(check => !check.passed)
-                          .sort((a, b) => (b.score || 0) - (a.score || 0))
-                          .map((check, i) => (
-                            <CheckItem key={i} check={check} />
-                          ))
-                        )}
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-score-poor" />
+                    Critical Issues to Fix
+                  </h2>
+                  <div className="space-y-3">
+                    {[
+                      ...details.seo.checks,
+                      ...details.performance.checks,
+                      ...details.security.checks,
+                      ...details.mobile.checks,
+                    ].filter(check => !check.passed).length === 0 ? (
+                      <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
+                        <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                        <h3 className="text-lg font-bold text-green-800">Amazing job!</h3>
+                        <p className="text-green-700">No issues found on your website.</p>
                       </div>
+                    ) : (
+                      [
+                        ...details.seo.checks,
+                        ...details.performance.checks,
+                        ...details.security.checks,
+                        ...details.mobile.checks,
+                      ]
+                      .filter(check => !check.passed)
+                      .sort((a, b) => (b.score || 0) - (a.score || 0))
+                      .map((check, i) => (
+                        <CheckItem key={i} check={check} />
+                      ))
+                    )}
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Section Header */}
-                  <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl font-bold capitalize">{activeTab} Analysis</h2>
-                      <p className="text-muted-foreground mt-1">Detailed breakdown of {activeTab} factors</p>
-                    </div>
-                    <div className="hidden md:block">
-                      <ScoreGauge 
-                        score={
-                          activeTab === 'seo' ? report.seoScore :
-                          activeTab === 'performance' ? report.performanceScore :
-                          activeTab === 'mobile' ? report.mobileScore :
-                          report.securityScore
-                        } 
-                        size="md" 
-                        showLabel={false} 
-                      />
-                    </div>
-                  </div>
+              </div>
+            </section>
 
-                  {/* Checks List */}
-                  <div className="space-y-4">
-                    {(details[activeTab as keyof typeof details] as any).checks.map((check: any, i: number) => (
-                      <CheckItem key={i} check={check} />
-                    ))}
-                  </div>
+            {/* SEO Section */}
+            <section ref={seoRef} className="scroll-mt-24 space-y-6">
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">SEO Analysis</h2>
+                  <p className="text-muted-foreground mt-1">Search Engine Optimization factors</p>
                 </div>
-              )}
-            </motion.div>
+                <ScoreGauge score={report.seoScore} size="md" showLabel={false} />
+              </div>
+              <div className="space-y-4">
+                {details.seo.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
+            {/* Performance Section */}
+            <section ref={performanceRef} className="scroll-mt-24 space-y-6">
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Performance Analysis</h2>
+                  <p className="text-muted-foreground mt-1">Speed and optimization factors</p>
+                </div>
+                <ScoreGauge score={report.performanceScore} size="md" showLabel={false} />
+              </div>
+              <div className="space-y-4">
+                {details.performance.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
+            {/* Mobile Section */}
+            <section ref={mobileRef} className="scroll-mt-24 space-y-6">
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Mobile Analysis</h2>
+                  <p className="text-muted-foreground mt-1">Responsiveness and mobile-friendliness</p>
+                </div>
+                <ScoreGauge score={report.mobileScore} size="md" showLabel={false} />
+              </div>
+              <div className="space-y-4">
+                {details.mobile.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
+            {/* Security Section */}
+            <section ref={securityRef} className="scroll-mt-24 space-y-6">
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Security Analysis</h2>
+                  <p className="text-muted-foreground mt-1">HTTPS and safety factors</p>
+                </div>
+                <ScoreGauge score={report.securityScore} size="md" showLabel={false} />
+              </div>
+              <div className="space-y-4">
+                {details.security.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
           </div>
         </div>
       </main>

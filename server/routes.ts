@@ -298,31 +298,7 @@ export async function registerRoutes(
   // Seed Data
   const existingReports = await storage.getReports();
   if (existingReports.length === 0) {
-    const dummyReport: InsertReport = {
-      url: "https://example.com",
-      overallScore: 85,
-      seoScore: 90,
-      performanceScore: 80,
-      securityScore: 100,
-      mobileScore: 70,
-      details: {
-        seo: { score: 90, checks: [
-          { passed: true, score: 10, title: "Title Tag", description: "Title tag is present and optimal length.", details: ["Example Domain"] },
-          { passed: true, score: 10, title: "Meta Description", description: "Meta description is present." },
-          { passed: true, score: 5, title: "Open Graph", description: "Open Graph title is present." }
-        ]},
-        performance: { score: 80, checks: [
-          { passed: true, score: 20, title: "Server Response Time", description: "Fast response time: 120ms" }
-        ]},
-        security: { score: 100, checks: [
-          { passed: true, score: 20, title: "HTTPS", description: "Site is served over HTTPS." }
-        ]},
-        mobile: { score: 70, checks: [
-          { passed: true, score: 20, title: "Viewport Meta Tag", description: "Viewport tag is optimized for mobile." }
-        ]}
-      } as any
-    };
-    await storage.createReport(dummyReport);
+    // No hardcoded data here to ensure user sees only real reports they generate
   }
 
   return httpServer;

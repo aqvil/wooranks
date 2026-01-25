@@ -162,8 +162,8 @@ export default function ReportPage() {
 
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3">
-            <div className="sticky top-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex flex-col items-center text-center">
+            <div className="sticky top-28 space-y-6">
+              <div className="bg-card rounded-2xl p-6 border border-border flex flex-col items-center text-center">
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Overall Score</h3>
                 <ScoreGauge score={report.overallScore} size="xl" showLabel={false} />
                 <div className="mt-4 text-sm text-muted-foreground">
@@ -181,7 +181,7 @@ export default function ReportPage() {
                       className={cn(
                         "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap lg:w-full",
                         activeTab === tab.id
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
                       )}
                     >
@@ -213,7 +213,7 @@ export default function ReportPage() {
                     <button
                       key={item.label}
                       onClick={() => scrollToSection(item.id as any)}
-                      className="bg-card p-5 rounded-2xl border border-border shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md hover:border-primary/20 transition-all text-left w-full"
+                      className="bg-card p-5 rounded-2xl border border-border flex flex-col items-center justify-center gap-3 transition-all text-left w-full"
                     >
                       <item.icon className="w-6 h-6 text-muted-foreground" />
                       <div className="text-center">
@@ -229,7 +229,7 @@ export default function ReportPage() {
                   ))}
                 </div>
 
-                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm">
+                <div className="bg-card rounded-2xl p-8 border border-border">
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5 text-score-poor" />
                     Critical Issues to Fix
@@ -266,7 +266,7 @@ export default function ReportPage() {
 
             {/* SEO Section */}
             <section ref={seoRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">SEO Analysis</h2>
                   <p className="text-muted-foreground mt-1">Search Engine Optimization factors</p>
@@ -282,7 +282,7 @@ export default function ReportPage() {
 
             {/* Performance Section */}
             <section ref={performanceRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Performance Analysis</h2>
                   <p className="text-muted-foreground mt-1">Speed and optimization factors</p>
@@ -298,7 +298,7 @@ export default function ReportPage() {
 
             {/* Mobile Section */}
             <section ref={mobileRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Mobile Analysis</h2>
                   <p className="text-muted-foreground mt-1">Responsiveness and mobile-friendliness</p>
@@ -314,7 +314,7 @@ export default function ReportPage() {
 
             {/* Security Section */}
             <section ref={securityRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Security Analysis</h2>
                   <p className="text-muted-foreground mt-1">HTTPS and safety factors</p>
@@ -330,7 +330,7 @@ export default function ReportPage() {
 
             {/* Usability Section */}
             <section ref={usabilityRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Usability Analysis</h2>
                   <p className="text-muted-foreground mt-1">User experience factors</p>
@@ -346,7 +346,7 @@ export default function ReportPage() {
 
             {/* Technologies Section */}
             <section ref={technologiesRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Technologies</h2>
                   <p className="text-muted-foreground mt-1">Tech stack and libraries</p>
@@ -362,7 +362,7 @@ export default function ReportPage() {
 
             {/* Social Section */}
             <section ref={socialRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm flex items-center justify-between">
+              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Social Analysis</h2>
                   <p className="text-muted-foreground mt-1">Social media presence</p>

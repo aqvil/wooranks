@@ -9,22 +9,22 @@ interface ScoreGaugeProps {
 
 export function ScoreGauge({ score, size = "md", label, showLabel = true }: ScoreGaugeProps) {
   const getScoreColor = (value: number) => {
-    if (value >= 80) return "text-score-good";
-    if (value >= 50) return "text-score-average";
-    return "text-score-poor";
+    if (value >= 80) return "text-green-500";
+    if (value >= 50) return "text-yellow-500";
+    return "text-red-500";
   };
 
   const getScoreStroke = (value: number) => {
-    if (value >= 80) return "var(--score-good, #22c55e)";
-    if (value >= 50) return "var(--score-average, #eab308)";
-    return "var(--score-poor, #ef4444)";
+    if (value >= 80) return "#22c55e"; // green-500
+    if (value >= 50) return "#eab308"; // yellow-500
+    return "#ef4444"; // red-500
   };
 
   const dimensions = {
-    sm: { size: 48, stroke: 4, fontSize: "text-sm" },
-    md: { size: 80, stroke: 6, fontSize: "text-xl" },
-    lg: { size: 120, stroke: 8, fontSize: "text-3xl" },
-    xl: { size: 160, stroke: 10, fontSize: "text-5xl" },
+    sm: { size: 40, stroke: 3, fontSize: "text-sm font-bold" },
+    md: { size: 80, stroke: 5, fontSize: "text-2xl font-bold" },
+    lg: { size: 120, stroke: 6, fontSize: "text-4xl font-bold" },
+    xl: { size: 160, stroke: 8, fontSize: "text-6xl font-black" },
   };
 
   const { size: dim, stroke, fontSize } = dimensions[size];
@@ -41,10 +41,9 @@ export function ScoreGauge({ score, size = "md", label, showLabel = true }: Scor
             cx={dim / 2}
             cy={dim / 2}
             r={radius}
-            stroke="currentColor"
+            stroke="#e2e8f0" // slate-200
             strokeWidth={stroke}
             fill="transparent"
-            className="text-muted"
           />
           {/* Progress Circle */}
           <motion.circle

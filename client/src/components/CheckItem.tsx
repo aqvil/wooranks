@@ -64,62 +64,58 @@ export function CheckItem({ check }: CheckItemProps) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden bg-slate-50/50"
+            className="overflow-hidden"
           >
-            <div className="px-4 pb-6 pt-2 ml-12 lg:mr-12 border-t border-dashed border-border/50">
+            <div className={cn(
+              "m-4 ml-12 lg:mr-12 p-6 rounded-r-lg border-l-4 bg-slate-50",
+              check.passed ? "border-green-500" :
+                check.score < 50 ? "border-red-500" : "border-yellow-500"
+            )}>
               {/* Description */}
-              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <Info className="w-3 h-3" /> Description
-                  </h5>
-                  <p className="text-sm text-slate-600 leading-relaxed">{check.description}</p>
-                </div>
+              <div className="mb-6">
+                {/* Standard Description */}
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">{check.description}</p>
 
+                {/* Expanded Explanation if available */}
                 {check.explanation && (
-                  <div>
-                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <Info className="w-3 h-3" /> Concept
-                    </h5>
-                    <p className="text-sm text-slate-600 leading-relaxed">{check.explanation}</p>
-                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed">{check.explanation}</p>
                 )}
               </div>
 
               {/* Fix Advice */}
               {(check.howToFix || check.recommendation) && (
-                <div className="bg-white rounded-lg border border-border p-5 mb-4 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="p-1.5 bg-blue-50 text-blue-600 rounded-full mt-0.5">
-                      <AlertCircle className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-bold text-slate-800 mb-1">How to fix</h5>
-                      <p className="text-sm text-slate-600 leading-relaxed">
-                        {check.howToFix || check.recommendation}
-                      </p>
-                      {check.learnMoreUrl && (
-                        <a
-                          href={check.learnMoreUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-blue-600 hover:underline"
-                        >
-                          Read detailed guide <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                <div className="mb-4">
+                  <h5 className="text-sm font-bold text-slate-800 mb-2">How to fix</h5>
+                  <div className="prose prose-sm max-w-none text-slate-600">
+                    {/* We render this as simple text or markdown if we had a renderer. 
+                            For now, assuming plain text or pre-formatted. 
+                            If it has code blocks (backticks), we might want basic formatting.
+                        */}
+                    <div className="whitespace-pre-wrap font-mono text-xs bg-white p-4 rounded border border-border">
+                      {check.howToFix || check.recommendation}
                     </div>
                   </div>
                 </div>
               )}
 
+              {check.learnMoreUrl && (
+                <a
+                  href={check.learnMoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
+                >
+                  Read detailed guide <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+
               {/* Technical Details */}
               {check.details && check.details.length > 0 && (
-                <div>
+                <div className="mt-6">
                   <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Technical Details</h5>
-                  <div className="bg-white rounded-lg border border-border divide-y divide-border">
+                  <div className="bg-white rounded border border-border text-xs font-mono text-slate-600 divide-y divide-border">
                     {check.details.map((detail, idx) => (
-                      <div key={idx} className="px-4 py-2 text-sm font-mono text-slate-600">
+                      <div key={idx} className="px-3 py-2 truncate">
                         {detail}
                       </div>
                     ))}

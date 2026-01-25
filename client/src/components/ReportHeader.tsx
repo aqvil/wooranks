@@ -103,8 +103,11 @@ export function ReportHeader({ report }: ReportHeaderProps) {
                     <ScoreGauge score={report.overallScore} size="xl" showLabel={false} />
 
                     {/* Actions */}
-                    <div className="flex gap-2">
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-slate-50 transition-colors">
+                    <div className="flex gap-2 print:hidden">
+                        <button
+                            onClick={() => window.print()}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-slate-50 transition-colors"
+                        >
                             <Download className="w-4 h-4" />
                             PDF
                         </button>

@@ -1,103 +1,136 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
-  --font-display: 'Outfit', sans-serif;
-
-  /* Base Colors - Clean & Professional */
-  --background: 210 40% 98%;
-  --foreground: 222 47% 11%;
-
-  /* Cards & Surface */
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-
-  /* Primary - Trustworthy Indigo */
-  --primary: 226 70% 55%;
-  --primary-foreground: 210 40% 98%;
-
-  /* Secondary - Soft Slate */
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222 47% 11.2%;
-
-  /* Muted */
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215 16% 47%;
-
-  /* Accent */
-  --accent: 226 70% 55%;
-  --accent-foreground: 210 40% 98%;
-
-  /* Destructive/Error */
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-
-  /* Scoring Colors */
-  --score-good: 142 71% 45%;
-  --score-average: 35 92% 50%;
-  --score-poor: 0 84% 60%;
-
-  /* Borders & Rings */
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-
-  --radius: 0.75rem;
-}
-
 @layer base {
+  :root {
+    --background: 210 20% 98%;    /* slate-50/50 approx */
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+
+    --score-good: 142 71% 45%;    /* green-600 */
+    --score-average: 37 90% 51%;  /* yellow-500 */
+    --score-poor: 0 84% 60%;      /* red-500 */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-sans);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-    @apply font-bold tracking-tight text-foreground;
   }
 }
 
-/* Custom Utilities for Score Gauges */
-.text-score-good { color: hsl(var(--score-good)); }
-.bg-score-good { background-color: hsl(var(--score-good)); }
-.border-score-good { border-color: hsl(var(--score-good)); }
-
-.text-score-average { color: hsl(var(--score-average)); }
-.bg-score-average { background-color: hsl(var(--score-average)); }
-.border-score-average { border-color: hsl(var(--score-average)); }
-
-.text-score-poor { color: hsl(var(--score-poor)); }
-.bg-score-poor { background-color: hsl(var(--score-poor)); }
-.border-score-poor { border-color: hsl(var(--score-poor)); }
-
-/* Custom Animations */
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(var(--primary), 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(var(--primary), 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(var(--primary), 0); }
+@layer utilities {
+    .clip-path-monitor-stand {
+        clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    }
 }
 
-.animate-pulse-ring {
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+/* Print Optimization */
+@media print {
+    /* Hide non-essential UI */
+    header, 
+    nav, 
+    .scrollbar-hide, /* Sidebar nav container */
+    button,
+    a[href^="/"] { /* Home links */
+        display: none !important;
+    }
 
-.glass-panel {
-  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
-}
+    /* Reset layouts for full width */
+    .lg\:col-span-3,
+    .lg\:col-span-9,
+    .max-w-7xl,
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        grid-column: span 12 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+    /* Hide sidebar explicitly if class selection is tricky */
+    .lg\:col-span-3 {
+        display: none !important;
+    }
+
+    /* Force background colors */
+    body, .min-h-screen {
+        background: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Ensure CheckItems don't break awkwardly */
+    .break-inside-avoid {
+        page-break-inside: avoid;
+    }
+
+    /* Expand all check items (Hack: Override inline styles/state) */
+    /* Note: This is tricky with React AnimatePresence. 
+       Ideally, we just make sure the closed view is detailed enough or we force a specific design.
+       For now, we just ensure clean layout. */
+    
+    /* Typography adjustments */
+    h1, h2, h3 { color: black !important; }
+    p { color: #333 !important; }
+
+    /* Remove shadows */
+    .shadow-sm, .shadow-md, .shadow-xl {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
 }

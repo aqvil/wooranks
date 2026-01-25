@@ -166,7 +166,7 @@ export default function ReportPage() {
                       key={tab.id}
                       onClick={() => scrollToSection(tab.id)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full border-b-2 lg:border-b-0 lg:border-l-2",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full border-b-4 lg:border-b-0 lg:border-l-4",
                         activeTab === tab.id
                           ? "border-green-500 bg-green-50/50 text-green-700"
                           : "border-transparent text-slate-600 hover:bg-slate-50"

@@ -19,7 +19,7 @@ export default function ReportPage() {
   const [, params] = useRoute("/report/:id");
   const id = params ? parseInt(params.id) : 0;
   const { data: report, isLoading, error } = useReport(id);
-  const [activeTab, setActiveTab] = useState<"overview" | "seo" | "performance" | "mobile" | "security" | "technologies" | "social" | "usability">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "seo" | "performance" | "mobile" | "security" | "technologies" | "social" | "usability">("seo");
 
   const overviewRef = useRef<HTMLDivElement>(null);
   const seoRef = useRef<HTMLDivElement>(null);

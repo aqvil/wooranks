@@ -42,10 +42,11 @@ export function ReportHeader({ report }: ReportHeaderProps) {
                         {/* Screenshot Preview */}
                         <div className="w-full h-full bg-slate-100 flex items-center justify-center overflow-hidden">
                             <img
-                                src={`https://s0.wordpress.com/mshots/v1/${encodeURIComponent(report.url)}?w=800&h=500`}
+                                src={`https://image.thum.io/get/width/600/crop/800/noanimate/${report.url}`}
                                 alt="Site Preview"
                                 className="w-full h-full object-cover"
                                 key={report.url}
+                                loading="eager"
                             />
                         </div>
                     </div>

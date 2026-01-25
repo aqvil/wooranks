@@ -100,8 +100,19 @@ export default function ReportPage() {
     );
   }
 
-  // Type assertion for details since it's stored as jsonb
-  const details = report.details as unknown as AnalysisResult;
+  // Handle legacy reports that might be missing new sections
+  const rawDetails = report.details as any;
+  const details: AnalysisResult = {
+    ...rawDetails,
+    seo: rawDetails.seo || { score: 0, checks: [] },
+    performance: rawDetails.performance || { score: 0, checks: [] },
+    security: rawDetails.security || { score: 0, checks: [] },
+    mobile: rawDetails.mobile || { score: 0, checks: [] },
+    // New sections with defaults for old reports
+    usability: rawDetails.usability || { score: 0, checks: [] },
+    technologies: rawDetails.technologies || { score: 0, checks: [] },
+    social: rawDetails.social || { score: 0, checks: [] },
+  };
 
   const tabs = [
     { id: "overview", label: "Overview", icon: null },

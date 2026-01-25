@@ -39,10 +39,14 @@ export function ReportHeader({ report }: ReportHeaderProps) {
                 {/* Left: Screenshot Monitor Mockup */}
                 <div className="flex-shrink-0 w-full max-w-[280px]">
                     <div className="relative aspect-video bg-slate-900 rounded-t-xl border-8 border-slate-800 border-b-0 overflow-hidden shadow-xl">
-                        {/* Screenshot Placeholder */}
-                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                            {/* In a real app, this would be the actual screenshot */}
-                            <span className="text-xs">Site Preview</span>
+                        {/* Screenshot Preview */}
+                        <div className="w-full h-full bg-slate-100 flex items-center justify-center overflow-hidden">
+                            <img
+                                src={`https://s0.wordpress.com/mshots/v1/${encodeURIComponent(report.url)}?w=800&h=500`}
+                                alt="Site Preview"
+                                className="w-full h-full object-cover"
+                                key={report.url}
+                            />
                         </div>
                     </div>
                     <div className="h-4 bg-slate-800 rounded-b-xl mx-auto w-full relative">

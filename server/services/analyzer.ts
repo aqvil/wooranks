@@ -28,6 +28,12 @@ const createCheck = (
     learnMoreUrl
 });
 
+function calculateAverageScore(checks: CheckResult[]): number {
+    if (checks.length === 0) return 0;
+    const total = checks.reduce((sum, check) => sum + check.score, 0);
+    return Math.round(total / checks.length);
+}
+
 export async function analyzeUrl(url: string): Promise<InsertReport> {
     const startTime = Date.now();
     let html = "";

@@ -79,7 +79,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
             undefined, [title]));
     } else if (title.length > 0) {
         seoScore -= 5;
-        seoChecks.push(createCheck(false, 0, "Title Tag", `Length is ${title.length} chars (10-60 recommended)`, "high", "easy",
+        seoChecks.push(createCheck(false, 60, "Title Tag", `Length is ${title.length} chars (10-60 recommended)`, "high", "easy",
             "The title tag is the clickable headline in Google search results. If it's too long, it gets cut off (truncated). If it's too short, it wastes opportunity.",
             `Update your HTML head:
 \`\`\`html
@@ -105,7 +105,7 @@ Aim for 50-60 characters.`,
             undefined, [metaDesc]));
     } else if (metaDesc.length > 0) {
         seoScore -= 5;
-        seoChecks.push(createCheck(false, 0, "Meta Description", `Length is ${metaDesc.length} chars (50-160 recommended)`, "high", "easy",
+        seoChecks.push(createCheck(false, 60, "Meta Description", `Length is ${metaDesc.length} chars (50-160 recommended)`, "high", "easy",
             "Meta descriptions provide a summary in SERPs. Descriptions under 50 chars are too vague; over 160 get cut off.",
             `Edit your page header:
 \`\`\`html
@@ -129,7 +129,7 @@ Aim for 50-60 characters.`,
             undefined, [$("h1").first().text().substring(0, 50) + "..."]));
     } else {
         seoScore -= 10;
-        seoChecks.push(createCheck(false, 0, "Headings", `Found ${h1Count} H1 tags`, "medium", "easy",
+        seoChecks.push(createCheck(false, 50, "Headings", `Found ${h1Count} H1 tags`, "medium", "easy",
             "A page should have exactly one H1 tag to signal the main topic. Multiple H1s dilute relevance.",
             `**Fix:**
 1. Find your main title and wrap it in \`<h1>...</h1>\`.
@@ -266,7 +266,7 @@ Sitemap: https://example.com/sitemap.xml
             "Great job! Keep monitoring response times."));
     } else if (responseTime < 1000) {
         performanceScore -= 10;
-        performanceChecks.push(createCheck(true, 10, "Server Response Time", `Acceptable: ${responseTime}ms`, "high", "hard",
+        performanceChecks.push(createCheck(false, 75, "Server Response Time", `Acceptable: ${responseTime}ms`, "high", "hard",
             "Response time is acceptable but could be better.",
             "Optimize database queries, install a caching plugin, or upgrade your hosting plan."));
     } else {
@@ -281,7 +281,7 @@ Sitemap: https://example.com/sitemap.xml
     const htmlSize = html.length;
     if (htmlSize < 50 * 1024) performanceChecks.push(createCheck(true, 15, "Page Size", `Small: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
         "Smaller pages load faster and use less data.", "Excellent work keeping page size down."));
-    else if (htmlSize < 150 * 1024) performanceChecks.push(createCheck(true, 10, "Page Size", `Medium: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
+    else if (htmlSize < 150 * 1024) performanceChecks.push(createCheck(false, 80, "Page Size", `Medium: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
         "Page size is reasonable.", "Monitor size as you add more content."));
     else {
         performanceScore -= 15;
@@ -308,7 +308,7 @@ Sitemap: https://example.com/sitemap.xml
             "Keep using build tools that auto-minify your assets."));
     } else {
         performanceScore -= 10;
-        performanceChecks.push(createCheck(false, 0, "Asset Minification", `${nonMinified.length} assets potentialy not minified.`, "medium", "medium",
+        performanceChecks.push(createCheck(false, 60, "Asset Minification", `${nonMinified.length} assets potentially not minified.`, "medium", "medium",
             "Minified files download faster.",
             `**How to fix:**
 If using **Webpack/Vite**: Ensure you run the \`build\` command (e.g. \`npm run build\`) for production, which auto-minifies.

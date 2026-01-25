@@ -33,6 +33,12 @@ export type CheckResult = {
   description: string;
   recommendation?: string;
   details?: string[]; // List of specific items (e.g., broken links)
+  // Rich Content
+  impact: "high" | "medium" | "low";
+  difficulty: "hard" | "medium" | "easy";
+  explanation: string;
+  howToFix: string;
+  learnMoreUrl?: string;
 };
 
 export type AnalysisSection = {

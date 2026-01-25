@@ -7,15 +7,25 @@ const createCheck = (
     score: number, // 0-100 impact
     title: string,
     description: string,
+    impact: "high" | "medium" | "low",
+    difficulty: "hard" | "medium" | "easy",
+    explanation: string,
+    howToFix: string,
     recommendation?: string,
-    details?: string[]
+    details?: string[],
+    learnMoreUrl?: string
 ): CheckResult => ({
     passed,
     score,
     title,
     description,
+    impact,
+    difficulty,
+    explanation,
+    howToFix,
     recommendation,
     details,
+    learnMoreUrl
 });
 
 export async function analyzeUrl(url: string): Promise<InsertReport> {
@@ -63,48 +73,110 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
 
     // Title
     if (title.length >= 10 && title.length <= 60) {
-        seoChecks.push(createCheck(true, 10, "Title Tag", `Perfect length: ${title.length} chars`, undefined, [title]));
+        seoChecks.push(createCheck(true, 10, "Title Tag", `Perfect length: ${title.length} chars`, "high", "easy",
+            "The title tag is the most important on-page SEO element. It appears in search results and browser tabs.",
+            "Ensure your title is between 10-60 characters, includes your main keyword, and triggers clicks.",
+            undefined, [title]));
     } else if (title.length > 0) {
         seoScore -= 5;
-        seoChecks.push(createCheck(false, 0, "Title Tag", `Length is ${title.length} chars (10-60 recommended)`, "Aim for 10-60 characters.", [title]));
+        seoChecks.push(createCheck(false, 0, "Title Tag", `Length is ${title.length} chars (10-60 recommended)`, "high", "easy",
+            "The title tag is the most important on-page SEO element.",
+            "Rewrite your title to be between 10 and 60 characters. Avoid keyword stuffing.",
+            "Aim for 10-60 characters.", [title]));
     } else {
         seoScore -= 20;
-        seoChecks.push(createCheck(false, 0, "Title Tag", "Missing title tag", "Add a descriptive title tag."));
+        seoChecks.push(createCheck(false, 0, "Title Tag", "Missing title tag", "high", "easy",
+            "The title tag is crucial for search engines to understand your page context.",
+            "Add a `<title>` tag inside the `<head>` section of your HTML.",
+            "Add a descriptive title tag."));
     }
 
     // Meta Description
     if (metaDesc.length >= 50 && metaDesc.length <= 160) {
-        seoChecks.push(createCheck(true, 10, "Meta Description", `Perfect length: ${metaDesc.length} chars`, undefined, [metaDesc]));
+        seoChecks.push(createCheck(true, 10, "Meta Description", `Perfect length: ${metaDesc.length} chars`, "high", "easy",
+            "Meta descriptions summarize your page content for search engines and users.",
+            "Keep doing what you're doing. Ensure it's engaging to maximize click-through rates.",
+            undefined, [metaDesc]));
     } else if (metaDesc.length > 0) {
         seoScore -= 5;
-        seoChecks.push(createCheck(false, 0, "Meta Description", `Length is ${metaDesc.length} chars (50-160 recommended)`, "Optimize description length.", [metaDesc]));
+        seoChecks.push(createCheck(false, 0, "Meta Description", `Length is ${metaDesc.length} chars (50-160 recommended)`, "high", "easy",
+            "Meta descriptions summarize your page content. Too short descriptions are ignored; too long ones are truncated.",
+            "Update your meta description to be between 50 and 160 characters.",
+            "Optimize description length.", [metaDesc]));
     } else {
         seoScore -= 20;
-        seoChecks.push(createCheck(false, 0, "Meta Description", "Missing meta description", "Add a meta description to improve CTR."));
+        seoChecks.push(createCheck(false, 0, "Meta Description", "Missing meta description", "high", "easy",
+            "Meta descriptions provide a summary in SERPs (Search Engine Result Pages). Without one, Google will pick random text.",
+            "Add a `<meta name='description' content='...' >` tag to your document head.",
+            "Add a meta description to improve CTR."));
     }
 
     // Headings
     if (h1Count === 1) {
-        seoChecks.push(createCheck(true, 10, "Headings", "Exactly one H1 tag found."));
+        seoChecks.push(createCheck(true, 10, "Headings", "Exactly one H1 tag found.", "medium", "easy",
+            "H1 tags indicate the main topic of your page. Having exactly one helps search engines understand the primary subject.",
+            "Maintain one unique H1 per page."));
     } else {
         seoScore -= 10;
-        seoChecks.push(createCheck(false, 0, "Headings", `Found ${h1Count} H1 tags`, "Use exactly one H1 tag per page."));
+        seoChecks.push(createCheck(false, 0, "Headings", `Found ${h1Count} H1 tags`, "medium", "easy",
+            "H1 tags indicate the main topic. Multiple H1s can confuse search engines about the page's primary focus.",
+            "Ensure you have exactly one `<h1>` tag that identifies the main content of the page.",
+            "Use exactly one H1 tag per page."));
     }
 
     // Canonical
     if (canonical) {
-        seoChecks.push(createCheck(true, 5, "Canonical Tag", "Canonical tag is present."));
+        seoChecks.push(createCheck(true, 5, "Canonical Tag", "Canonical tag is present.", "medium", "medium",
+            "Canonical tags prevent duplicate content issues by telling search engines which version of a URL is the master copy.",
+            "Ensure the href points to the correct, absolute URL of the page."));
     } else {
         seoScore -= 5;
-        seoChecks.push(createCheck(false, 0, "Canonical Tag", "Missing canonical tag", "Add a canonical tag to prevent duplicate content."));
+        seoChecks.push(createCheck(false, 0, "Canonical Tag", "Missing canonical tag", "medium", "medium",
+            "Canonical tags help resolving duplicate content issues.",
+            "Add `<link rel='canonical' href='...' />` to the head of your page.",
+            "Add a canonical tag to prevent duplicate content."));
     }
 
     // Robots
     if (robots) {
-        seoChecks.push(createCheck(true, 5, "Robots.txt", `Robots meta tag found: ${robots}`));
+        seoChecks.push(createCheck(true, 5, "Robots.txt", `Robots meta tag found: ${robots}`, "medium", "easy",
+            "The robots meta tag controls how search engines crawl and index your page.",
+            "Verify that the directives (index, follow) match your intentions."));
     } else {
-        seoChecks.push(createCheck(true, 5, "Robots.txt", "No robots meta tag (defaults to index, follow)"));
+        seoChecks.push(createCheck(true, 5, "Robots.txt", "No robots meta tag (defaults to index, follow)", "medium", "easy",
+            "Without a robots meta tag, search engines default to indexing the page and following links.",
+            "This is generally fine. If you want to restrict crawling, add a robots meta tag."));
     }
+
+    // NEW: Sitemap Detection (Heuristic Check in Logic - usually needs separate fetch)
+    // We can't easily check robots.txt file without another fetch, so we'll skip or simulate.
+    // We'll skip for now to avoid complexity of multiple fetches, but we CAN check for sitemap link in footer.
+    const sitemapLink = $('a[href*="sitemap.xml"]').length > 0 || $('a[href*="sitemap.html"]').length > 0;
+    if (sitemapLink) {
+        seoChecks.push(createCheck(true, 5, "Sitemap Link", "Sitemap link detection in HTML", "low", "easy",
+            "Linking to a sitemap helps users and crawlers navigate your site.",
+            "Ensure your sitemap is also submitted to Google Search Console."));
+    } else {
+        // Don't penalize too much as it might be in robots.txt
+        seoChecks.push(createCheck(true, 0, "Sitemap Link", "No sitemap link found in HTML (check robots.txt)", "low", "easy",
+            "A sitemap helps index your content. It is usually linked in the footer or declared in robots.txt.",
+            "Ensure you have a sitemap.xml and it is referenced in your robots.txt."));
+    }
+
+    // NEW: Structured Data (JSON-LD)
+    const jsonLd = $('script[type="application/ld+json"]').length > 0;
+    if (jsonLd) {
+        seoChecks.push(createCheck(true, 10, "Structured Data", "Schema.org (JSON-LD) detected.", "high", "hard",
+            "Structured data helps search engines understand your content and can lead to rich snippets (stars, prices, etc.) in results.",
+            "Validate your schema using Google's Rich Results Test tool."));
+    } else {
+        seoScore -= 10;
+        seoChecks.push(createCheck(false, 0, "Structured Data", "No Schema.org data detected", "high", "hard",
+            "Structured data allows you to provide explicit clues about the meaning of a page to Google.",
+            "Add JSON-LD script tags to describe your Organization, Product, Article, or Breadcrumbs.",
+            "Implement Schema.org structured data."));
+    }
+
 
     // Alt Attributes
     const images = $('img');
@@ -112,12 +184,18 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     images.each((_, el) => { if (!$(el).attr('alt')) missingAlt++; });
 
     if (missingAlt === 0 && images.length > 0) {
-        seoChecks.push(createCheck(true, 10, "Image Alt Attributes", "All images have alt text."));
+        seoChecks.push(createCheck(true, 10, "Image Alt Attributes", "All images have alt text.", "medium", "easy",
+            "Alt text describes images to search engines and screen readers.",
+            "Keep alt text descriptive and relevant."));
     } else if (images.length === 0) {
-        seoChecks.push(createCheck(true, 10, "Image Alt Attributes", "No images found."));
+        seoChecks.push(createCheck(true, 10, "Image Alt Attributes", "No images found.", "medium", "easy",
+            "Images enrich content, but having none is not technically an error.", "Consider adding visual content."));
     } else {
         seoScore -= 10;
-        seoChecks.push(createCheck(false, 0, "Image Alt Attributes", `${missingAlt} images missing alt text`, "Add alt text to all images."));
+        seoChecks.push(createCheck(false, 0, "Image Alt Attributes", `${missingAlt} images missing alt text`, "medium", "easy",
+            "Search engines cannot 'see' images. They rely on the alt attribute to understand the image context.",
+            "Add `alt='Description of image'` to all `<img>` tags.",
+            "Add alt text to all images."));
     }
 
     // INTERNAL/EXTERNAL LINKS
@@ -127,7 +205,10 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         return href?.startsWith('/') || href?.includes(new URL(url).hostname) || false;
     }).length;
 
-    seoChecks.push(createCheck(true, 5, "Link Analysis", `Found ${links.length} total links`, undefined, [`Internal: ${internalLinks}`, `External: ${links.length - internalLinks}`]));
+    seoChecks.push(createCheck(true, 5, "Link Analysis", `Found ${links.length} total links`, "low", "medium",
+        "Links determine the structure of your site and how value (link juice) flows.",
+        "Ensure a healthy ratio of internal to external links.",
+        undefined, [`Internal: ${internalLinks}`, `External: ${links.length - internalLinks}`]));
 
 
     // ==========================================
@@ -138,31 +219,71 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
 
     // Response Time
     if (responseTime < 500) {
-        performanceChecks.push(createCheck(true, 20, "Server Response Time", `Fast: ${responseTime}ms`));
+        performanceChecks.push(createCheck(true, 20, "Server Response Time", `Fast: ${responseTime}ms`, "high", "hard",
+            "Time to First Byte (TTFB) is a key metric for user experience and SEO.",
+            "Great job! Keep monitoring response times."));
     } else if (responseTime < 1000) {
         performanceScore -= 10;
-        performanceChecks.push(createCheck(true, 10, "Server Response Time", `Acceptable: ${responseTime}ms`));
+        performanceChecks.push(createCheck(true, 10, "Server Response Time", `Acceptable: ${responseTime}ms`, "high", "hard",
+            "Response time is acceptable but could be better.",
+            "Optimize database queries, install a caching plugin, or upgrade your hosting plan."));
     } else {
         performanceScore -= 20;
-        performanceChecks.push(createCheck(false, 0, "Server Response Time", `Slow: ${responseTime}ms`, "Optimize server backend or use caching."));
+        performanceChecks.push(createCheck(false, 0, "Server Response Time", `Slow: ${responseTime}ms`, "high", "hard",
+            "Slow server response times frustrate users and hurt rankings.",
+            "Enable page caching, optimize backend code, use a CDN, or upgrade server resources.",
+            "Optimize server backend or use caching."));
     }
 
     // Page Size
     const htmlSize = html.length;
-    if (htmlSize < 50 * 1024) performanceChecks.push(createCheck(true, 15, "Page Size", `Small: ${(htmlSize / 1024).toFixed(1)}KB`));
-    else if (htmlSize < 150 * 1024) performanceChecks.push(createCheck(true, 10, "Page Size", `Medium: ${(htmlSize / 1024).toFixed(1)}KB`));
+    if (htmlSize < 50 * 1024) performanceChecks.push(createCheck(true, 15, "Page Size", `Small: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
+        "Smaller pages load faster and use less data.", "Excellent work keeping page size down."));
+    else if (htmlSize < 150 * 1024) performanceChecks.push(createCheck(true, 10, "Page Size", `Medium: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
+        "Page size is reasonable.", "Monitor size as you add more content."));
     else {
         performanceScore -= 15;
-        performanceChecks.push(createCheck(false, 0, "Page Size", `Large: ${(htmlSize / 1024).toFixed(1)}KB`, "Minify HTML/CSS/JS."));
+        performanceChecks.push(createCheck(false, 0, "Page Size", `Large: ${(htmlSize / 1024).toFixed(1)}KB`, "medium", "medium",
+            "Large HTML files take longer to download and parse.",
+            "Minify HTML, remove inline CSS/JS, and clean up code.",
+            "Minify HTML/CSS/JS."));
     }
+
+    // NEW: Asset Minification (Heuristic)
+    const nonMinified = [];
+    $('script[src]').each((_, el) => {
+        const src = $(el).attr('src') || "";
+        if (src.includes('.js') && !src.includes('.min.js') && !src.includes('cdn')) nonMinified.push(src);
+    });
+    $('link[rel="stylesheet"]').each((_, el) => {
+        const href = $(el).attr('href') || "";
+        if (href.includes('.css') && !href.includes('.min.css') && !href.includes('cdn')) nonMinified.push(href);
+    });
+
+    if (nonMinified.length === 0) {
+        performanceChecks.push(createCheck(true, 10, "Asset Minification", "All detected assets appear minified.", "medium", "medium",
+            "Minification removes whitespace and comments from code files to reduce size.",
+            "Keep using build tools that auto-minify your assets."));
+    } else {
+        performanceScore -= 10;
+        performanceChecks.push(createCheck(false, 0, "Asset Minification", `${nonMinified.length} assets potentially not minified.`, "medium", "medium",
+            "Non-minified files are larger than necessary.",
+            "Use a build tool (like Webpack, Vite, or Gulp) to minify CSS and JS files.",
+            "Minify your CSS and JS assets.", nonMinified.slice(0, 5)));
+    }
+
 
     // Compression
     const contentEncoding = headers.get('content-encoding');
     if (contentEncoding?.includes('gzip') || contentEncoding?.includes('br')) {
-        performanceChecks.push(createCheck(true, 10, "Compression", "Compression enabled."));
+        performanceChecks.push(createCheck(true, 10, "Compression", "Compression enabled.", "high", "hard",
+            "Compression significantly reduces the size of files sent from your server.", "Great! Gzip or Brotli is active."));
     } else {
-        performanceScore -= 10; // Actually not always detectable via fetch if behind proxy, but good enough hint
-        performanceChecks.push(createCheck(false, 0, "Compression", "Compression not detected", "Enable Gzip/Brotli."));
+        performanceScore -= 10;
+        performanceChecks.push(createCheck(false, 0, "Compression", "Compression not detected", "high", "hard",
+            "Text-based resources (HTML, CSS, JS) should be compressed to save bandwidth.",
+            "Enable Gzip or Brotli compression in your web server configuration (Nginx/Apache/IIS).",
+            "Enable Gzip/Brotli."));
     }
 
     // ==========================================
@@ -172,21 +293,47 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     let securityScore = 100;
 
     if (url.startsWith('https')) {
-        securityChecks.push(createCheck(true, 40, "SSL/HTTPS", "Secure connection used."));
+        securityChecks.push(createCheck(true, 40, "SSL/HTTPS", "Secure connection used.", "high", "hard",
+            "HTTPS encrypts data between the user's browser and your server, ensuring privacy and security.",
+            "Your site is secure."));
     } else {
         securityScore -= 40;
-        securityChecks.push(createCheck(false, 0, "SSL/HTTPS", "Insecure connection (HTTP)", "Enable HTTPS."));
+        securityChecks.push(createCheck(false, 0, "SSL/HTTPS", "Insecure connection (HTTP)", "high", "hard",
+            "Google penalizes non-secure sites. Users will see a 'Not Secure' warning.",
+            "Install an SSL certificate (free via Let's Encrypt) and force HTTPS redirection.",
+            "Enable HTTPS."));
     }
 
     // Headers
-    if (headers.get('strict-transport-security')) securityChecks.push(createCheck(true, 10, "HSTS", "HSTS header present."));
-    else { securityScore -= 5; securityChecks.push(createCheck(false, 0, "HSTS", "HSTS header missing", "Enable HSTS.")); }
+    if (headers.get('strict-transport-security')) securityChecks.push(createCheck(true, 10, "HSTS", "HSTS header present.", "medium", "hard",
+        "HSTS tells browsers to only interact with your site using HTTPS, preventing downgrade attacks.",
+        "Configuration is good."));
+    else {
+        securityScore -= 5; securityChecks.push(createCheck(false, 0, "HSTS", "HSTS header missing", "medium", "hard",
+            "HTTP Strict Transport Security (HSTS) strengthens your SSL implementation.",
+            "Add the `Strict-Transport-Security` header to your server config.",
+            "Enable HSTS."));
+    }
 
-    if (headers.get('x-frame-options')) securityChecks.push(createCheck(true, 10, "X-Frame-Options", "Clickjacking protection present."));
-    else { securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Frame-Options", "Clickjacking protection missing", "Add X-Frame-Options header.")); }
+    if (headers.get('x-frame-options')) securityChecks.push(createCheck(true, 10, "X-Frame-Options", "Clickjacking protection present.", "medium", "medium",
+        "This header prevents your site from being embedded in iframes on other sites.",
+        "Site is protected against clickjacking."));
+    else {
+        securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Frame-Options", "Clickjacking protection missing", "medium", "medium",
+            "Without this header, malicious sites could embed your site to trick users.",
+            "Set `X-Frame-Options` to `SAMEORIGIN` or `DENY`.",
+            "Add X-Frame-Options header."));
+    }
 
-    if (headers.get('x-content-type-options')) securityChecks.push(createCheck(true, 5, "X-Content-Type-Options", "MIME sniffing protection present."));
-    else { securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Content-Type-Options", "MIME sniffing protection missing", "Add X-Content-Type-Options header.")); }
+    if (headers.get('x-content-type-options')) securityChecks.push(createCheck(true, 5, "X-Content-Type-Options", "MIME sniffing protection present.", "low", "easy",
+        "Prevents browsers from interpreting files as a different MIME type than what is specified.",
+        "Configuration matches best practices."));
+    else {
+        securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Content-Type-Options", "MIME sniffing protection missing", "low", "easy",
+            "This reduces exposure to drive-by downloads and media type confusion attacks.",
+            "Set `X-Content-Type-Options` to `nosniff`.",
+            "Add X-Content-Type-Options header."));
+    }
 
 
     // ==========================================
@@ -197,10 +344,15 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
 
     const viewport = $('meta[name="viewport"]').attr('content');
     if (viewport && viewport.includes('width=device-width')) {
-        mobileChecks.push(createCheck(true, 40, "Viewport", "Mobile viewport tag present."));
+        mobileChecks.push(createCheck(true, 40, "Viewport", "Mobile viewport tag present.", "high", "easy",
+            "The viewport tag tells browsers how to adjust dimensions and scaling for mobile devices.",
+            "Mobile optimization is active."));
     } else {
         mobileScore -= 40;
-        mobileChecks.push(createCheck(false, 0, "Viewport", "Viewport tag missing/incorrect", "Add width=device-width viewport tag."));
+        mobileChecks.push(createCheck(false, 0, "Viewport", "Viewport tag missing/incorrect", "high", "easy",
+            "Without a viewport tag, mobile browsers will render the desktop version and shrink it down, making it unreadable.",
+            "Add `<meta name='viewport' content='width=device-width, initial-scale=1'>` to your `<head>`.",
+            "Add width=device-width viewport tag."));
     }
 
     // ==========================================
@@ -212,29 +364,40 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     // Favicon
     const favicon = $('link[rel*="icon"]').attr('href');
     if (favicon) {
-        usabilityChecks.push(createCheck(true, 20, "Favicon", "Favicon found."));
+        usabilityChecks.push(createCheck(true, 20, "Favicon", "Favicon found.", "low", "easy",
+            "Favicons help users identify your tab in their browser.", "Favicon is present."));
     } else {
         usabilityScore -= 20;
-        usabilityChecks.push(createCheck(false, 0, "Favicon", "Favicon missing", "Add a favicon for branding."));
+        usabilityChecks.push(createCheck(false, 0, "Favicon", "Favicon missing", "low", "easy",
+            "Missing favicons look unprofessional and make it hard to find tabs.",
+            "Create a 16x16 or 32x32 icon and link it in your head with `<link rel='icon' ... >`."));
     }
 
     // Language
     const lang = $('html').attr('lang');
     if (lang) {
-        usabilityChecks.push(createCheck(true, 20, "Language", `Language specified: ${lang}`));
+        usabilityChecks.push(createCheck(true, 20, "Language", `Language specified: ${lang}`, "medium", "easy",
+            "Declaring a language helps screen readers and translation tools.",
+            "Language is correctly set."));
     } else {
         usabilityScore -= 20;
-        usabilityChecks.push(createCheck(false, 0, "Language", "Language attribute missing", "Specify language in html tag."));
+        usabilityChecks.push(createCheck(false, 0, "Language", "Language attribute missing", "medium", "easy",
+            "Without a language tag, browsers/tools assume default (often English) which might be wrong.",
+            "Add the `lang` attribute to your `<html>` tag, e.g., `<html lang='en'>`.",
+            "Specify language in html tag."));
     }
 
-    // 404 Page (simulated check if generic) - hard to test without another request, skipping for now or assume existing
     // Print Friendly (search for print css)
     const printCss = $('link[media="print"]').length > 0 || html.includes('@media print');
     if (printCss) {
-        usabilityChecks.push(createCheck(true, 10, "Print Friendly", "Print stylesheet detected."));
+        usabilityChecks.push(createCheck(true, 10, "Print Friendly", "Print stylesheet detected.", "low", "medium",
+            "Print stylesheets ensure your page looks good when printed (hiding navs, adjusting colors).",
+            "Print optimization is active."));
     } else {
         // Optional, no penalty
-        usabilityChecks.push(createCheck(true, 0, "Print Friendly", "No print stylesheet found (optional)"));
+        usabilityChecks.push(createCheck(true, 0, "Print Friendly", "No print stylesheet found (optional)", "low", "medium",
+            "Not strictly required, but good for articles/recipes.",
+            "Add a CSS media query `@media print { ... }` to hide navigation and unnecessary elements."));
     }
 
 
@@ -246,22 +409,22 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
 
     // Server
     const serverHeader = headers.get('server');
-    if (serverHeader) techChecks.push(createCheck(true, 0, "Server", `Server: ${serverHeader}`));
+    if (serverHeader) techChecks.push(createCheck(true, 0, "Server", `Server: ${serverHeader}`, "low", "hard", "The web server software used.", "Information only."));
 
     // Frameworks / Libs detection (naive)
     const scripts = $('script').map((_, el) => $(el).attr('src') || "").get().join(' ');
     const fullHtml = html.toLowerCase();
 
-    if (fullHtml.includes('react') || scripts.includes('react')) techChecks.push(createCheck(true, 0, "Framework", "React detected"));
-    if (fullHtml.includes('vue') || scripts.includes('vue')) techChecks.push(createCheck(true, 0, "Framework", "Vue.js detected"));
-    if (fullHtml.includes('angular') || scripts.includes('angular')) techChecks.push(createCheck(true, 0, "Framework", "Angular detected"));
-    if (fullHtml.includes('jquery') || scripts.includes('jquery')) techChecks.push(createCheck(true, 0, "Library", "jQuery detected"));
-    if (fullHtml.includes('bootstrap') || html.includes('bootstrap')) techChecks.push(createCheck(true, 0, "UI Framework", "Bootstrap detected"));
-    if (fullHtml.includes('tailwindcss')) techChecks.push(createCheck(true, 0, "CSS Framework", "Tailwind CSS detected"));
+    if (fullHtml.includes('react') || scripts.includes('react')) techChecks.push(createCheck(true, 0, "Framework", "React detected", "medium", "medium", "Modern JS library for building UIs.", "No action needed."));
+    if (fullHtml.includes('vue') || scripts.includes('vue')) techChecks.push(createCheck(true, 0, "Framework", "Vue.js detected", "medium", "medium", "Progressive JS framework.", "No action needed."));
+    if (fullHtml.includes('angular') || scripts.includes('angular')) techChecks.push(createCheck(true, 0, "Framework", "Angular detected", "medium", "medium", "Platform for building web apps.", "No action needed."));
+    if (fullHtml.includes('jquery') || scripts.includes('jquery')) techChecks.push(createCheck(true, 0, "Library", "jQuery detected", "low", "easy", "Legacy JS library.", "Consider migrating to modern vanilla JS if possible."));
+    if (fullHtml.includes('bootstrap') || html.includes('bootstrap')) techChecks.push(createCheck(true, 0, "UI Framework", "Bootstrap detected", "low", "medium", "CSS framework.", "No action needed."));
+    if (fullHtml.includes('tailwindcss')) techChecks.push(createCheck(true, 0, "CSS Framework", "Tailwind CSS detected", "low", "medium", "Utility-first CSS framework.", "No action needed."));
 
     // Analytics
-    if (fullHtml.includes('google-analytics') || fullHtml.includes('gtag')) techChecks.push(createCheck(true, 0, "Analytics", "Google Analytics detected"));
-    if (fullHtml.includes('facebook-pixel') || fullHtml.includes('fbevents')) techChecks.push(createCheck(true, 0, "Analytics", "Facebook Pixel detected"));
+    if (fullHtml.includes('google-analytics') || fullHtml.includes('gtag')) techChecks.push(createCheck(true, 0, "Analytics", "Google Analytics detected", "medium", "easy", "Traffic tracking tool.", "No action needed."));
+    if (fullHtml.includes('facebook-pixel') || fullHtml.includes('fbevents')) techChecks.push(createCheck(true, 0, "Analytics", "Facebook Pixel detected", "medium", "easy", "Conversion tracking tool.", "No action needed."));
 
 
     // ==========================================
@@ -270,7 +433,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     const socialChecks: CheckResult[] = [];
     let socialScore = 100; // mostly existence
 
-    const socialDomains = ['facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com', 'youtube.com'];
+    const socialDomains = ['facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com', 'youtube.com', 'tiktok.com'];
     const foundSocials: string[] = [];
 
     links.each((_, el) => {
@@ -285,19 +448,47 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     });
 
     if (foundSocials.length > 0) {
-        socialChecks.push(createCheck(true, 20, "Social Accounts", `Found links to: ${foundSocials.join(', ')}`));
+        socialChecks.push(createCheck(true, 20, "Social Accounts", `Found links to: ${foundSocials.join(', ')}`, "medium", "easy",
+            "Social media drives traffic and builds brand authority.", "Great, you are linking to social profiles."));
     } else {
         socialScore -= 20;
-        socialChecks.push(createCheck(false, 0, "Social Accounts", "No social media links found", "Link your social media profiles."));
+        socialChecks.push(createCheck(false, 0, "Social Accounts", "No social media links found", "medium", "easy",
+            "Social signals are indirect ranking factors.",
+            "Add links to your active social media profiles in the header or footer.",
+            "Link your social media profiles."));
     }
 
     // Meta Tags
     const ogTitle = $('meta[property="og:title"]').attr('content');
     if (ogTitle) {
-        socialChecks.push(createCheck(true, 10, "Open Graph", "Open Graph tags present."));
+        socialChecks.push(createCheck(true, 10, "Open Graph", "Open Graph tags present.", "medium", "easy",
+            "Open Graph protocols control how your content is displayed when shared on social media.",
+            "Implementation is correct."));
     } else {
         socialScore -= 10;
-        socialChecks.push(createCheck(false, 0, "Open Graph", "Open Graph tags missing", "Add OG tags for better sharing."));
+        socialChecks.push(createCheck(false, 0, "Open Graph", "Open Graph tags missing", "medium", "easy",
+            "Without OG tags, social networks guess which image and title to use.",
+            "Add `<meta property='og:title' ... >` tags.",
+            "Add OG tags for better sharing."));
+    }
+
+    // ==========================================
+    // LOCAL SEO Checks (New)
+    // ==========================================
+    // Basic heuristic for phone/email
+    const phonePattern = /(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/;
+    const emailPattern = /[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}/;
+
+    const hasPhone = phonePattern.test(html);
+    const hasEmail = emailPattern.test(html);
+
+    if (hasPhone || hasEmail) {
+        usabilityChecks.push(createCheck(true, 10, "Contact Info", "Contact information found.", "medium", "easy",
+            "Displaying contact info builds trust and helps local SEO.", "Contact info is visible."));
+    } else {
+        // Don't penalty too hard, maybe they use a form
+        usabilityChecks.push(createCheck(true, 0, "Contact Info", "No phone or email detected directly.", "medium", "easy",
+            "Clear contact info improves trust.", "Ensure phone or email is visible if applicable."));
     }
 
 
@@ -311,7 +502,6 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     securityScore = clamp(securityScore);
     mobileScore = clamp(mobileScore);
     usabilityScore = clamp(usabilityScore);
-    // Social score is binary-ish, lets clamp
     socialScore = clamp(socialScore);
 
 
@@ -326,7 +516,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         performanceScore,
         securityScore,
         mobileScore,
-        technologiesScore: 100, // Tech is informational
+        technologiesScore: 100,
         socialScore,
         usabilityScore,
         details: {

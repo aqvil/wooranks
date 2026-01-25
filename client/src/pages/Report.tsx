@@ -43,23 +43,25 @@ export default function ReportPage() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
-
-      for (const [id, ref] of Object.entries(sectionRefs)) {
-        const element = ref.current;
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveTab(id as any);
-            break;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id as any);
           }
-        }
+        });
+      },
+      {
+        rootMargin: "-10% 0px -80% 0px", // Triggers when section is near top of viewport
+        threshold: 0,
       }
-    };
+    );
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    Object.values(sectionRefs).forEach((ref) => {
+      if (ref.current) observer.observe(ref.current);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (sectionId: keyof typeof sectionRefs) => {
@@ -184,7 +186,7 @@ export default function ReportPage() {
             {/* Note: Overview section removed as it's replaced by Header */}
 
             {/* SEO Section */}
-            <section ref={seoRef} className="scroll-mt-24">
+            <section id="seo" ref={seoRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">SEO</h2>
                 <p className="text-slate-500">Search Engine Optimization</p>
@@ -197,7 +199,7 @@ export default function ReportPage() {
             </section>
 
             {/* Performance Section */}
-            <section ref={performanceRef} className="scroll-mt-24">
+            <section id="performance" ref={performanceRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Performance</h2>
                 <p className="text-slate-500">Speed and optimization</p>
@@ -210,7 +212,7 @@ export default function ReportPage() {
             </section>
 
             {/* Usability Section */}
-            <section ref={usabilityRef} className="scroll-mt-24">
+            <section id="usability" ref={usabilityRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Usability</h2>
                 <p className="text-slate-500">User experience factors</p>
@@ -223,7 +225,7 @@ export default function ReportPage() {
             </section>
 
             {/* Mobile Section */}
-            <section ref={mobileRef} className="scroll-mt-24">
+            <section id="mobile" ref={mobileRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Mobile</h2>
                 <p className="text-slate-500">Responsiveness checks</p>
@@ -236,7 +238,7 @@ export default function ReportPage() {
             </section>
 
             {/* Technologies Section */}
-            <section ref={technologiesRef} className="scroll-mt-24">
+            <section id="technologies" ref={technologiesRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Technologies</h2>
                 <p className="text-slate-500">Tech stack detection</p>
@@ -249,7 +251,7 @@ export default function ReportPage() {
             </section>
 
             {/* Social Section */}
-            <section ref={socialRef} className="scroll-mt-24">
+            <section id="social" ref={socialRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Social</h2>
                 <p className="text-slate-500">Social media presence</p>
@@ -262,7 +264,7 @@ export default function ReportPage() {
             </section>
 
             {/* Security Section */}
-            <section ref={securityRef} className="scroll-mt-24">
+            <section id="security" ref={securityRef} className="scroll-mt-24">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-slate-800">Security</h2>
                 <p className="text-slate-500">HTTPS and safety</p>

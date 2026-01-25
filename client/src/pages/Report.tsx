@@ -3,6 +3,7 @@ import { useReport } from "@/hooks/use-reports";
 import { useRoute } from "wouter";
 import { ScoreGauge } from "@/components/ScoreGauge";
 import { CheckItem } from "@/components/CheckItem";
+import { ReportHeader } from "@/components/ReportHeader";
 import { Report as ReportType, AnalysisResult } from "@shared/schema";
 import {
   ArrowLeft, Download, Share2,
@@ -127,62 +128,49 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border shadow-sm">
+      {/* Flattened Header style - kept simple as we moved logic to ReportHeader */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-20 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 overflow-hidden">
-              <Link href="/" className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
-                <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+          <div className="h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors">
+                <ArrowLeft className="w-5 h-5 text-slate-500" />
               </Link>
-              <div className="min-w-0">
-                <h1 className="text-xl font-bold truncate">{new URL(report.url).hostname}</h1>
-                <a href={report.url} target="_blank" rel="noopener" className="text-sm text-muted-foreground hover:text-primary truncate block">
-                  {report.url}
-                </a>
-              </div>
+              <h1 className="text-sm font-semibold text-slate-500">Back to Home</h1>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors">
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Export PDF</span>
-              </button>
-            </div>
+            <a href={report.url} target="_blank" rel="noopener" className="text-sm font-medium text-slate-900 truncate max-w-md">
+              {report.url}
+            </a>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* NEW HEADER COMPONENT */}
+        <ReportHeader report={report} />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3">
-            <div className="sticky top-28 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex flex-col items-center text-center">
-                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">Overall Score</h3>
-                <ScoreGauge score={report.overallScore} size="xl" showLabel={false} />
-                <div className="mt-4 text-sm text-muted-foreground">
-                  Analyzed on {new Date(report.createdAt!).toLocaleDateString()}
-                </div>
-              </div>
-
-              <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-2 lg:pb-0 scrollbar-hide">
+            <div className="sticky top-24 space-y-4">
+              <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-2 lg:pb-0 scrollbar-hide">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
+                  // Skip overview tab in sidebar if we want pure section nav, or keep it
+                  if (tab.id === 'overview') return null;
+
                   return (
                     <button
                       key={tab.id}
                       onClick={() => scrollToSection(tab.id)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap lg:w-full",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full",
                         activeTab === tab.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent hover:border-border"
+                          ? "bg-slate-900 text-white shadow-sm"
+                          : "text-slate-600 hover:bg-slate-100"
                       )}
                     >
                       {Icon && <Icon className="w-4 h-4" />}
@@ -196,84 +184,15 @@ export default function ReportPage() {
 
           {/* Main Content Area - Scrolling Sections */}
           <div className="lg:col-span-9 space-y-12 pb-24">
-
-            {/* Overview Section */}
-            <section ref={overviewRef} className="scroll-mt-24">
-              <div className="space-y-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { label: "SEO", score: report.seoScore, icon: Search, id: "seo" },
-                    { label: "Performance", score: report.performanceScore, icon: Zap, id: "performance" },
-                    { label: "Usability", score: report.usabilityScore, icon: MousePointerClick, id: "usability" },
-                    { label: "Mobile", score: report.mobileScore, icon: Smartphone, id: "mobile" },
-                    { label: "Technologies", score: report.technologiesScore, icon: Layers, id: "technologies" },
-                    { label: "Social", score: report.socialScore, icon: Share2, id: "social" },
-                    { label: "Security", score: report.securityScore, icon: ShieldCheck, id: "security" },
-                  ].map((item) => (
-                    <button
-                      key={item.label}
-                      onClick={() => scrollToSection(item.id as any)}
-                      className="bg-card p-5 rounded-2xl border border-border flex flex-col items-center justify-center gap-3 transition-all text-left w-full"
-                    >
-                      <item.icon className="w-6 h-6 text-muted-foreground" />
-                      <div className="text-center">
-                        <div className={cn("text-2xl font-bold mb-1",
-                          item.score >= 80 ? "text-score-good" :
-                            item.score >= 50 ? "text-score-average" : "text-score-poor"
-                        )}>
-                          {item.score}
-                        </div>
-                        <div className="text-xs font-semibold uppercase text-muted-foreground">{item.label}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="bg-card rounded-2xl p-8 border border-border">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-score-poor" />
-                    Critical Issues to Fix
-                  </h2>
-                  <div className="space-y-3">
-                    {[
-                      ...details.seo.checks,
-                      ...details.performance.checks,
-                      ...details.security.checks,
-                      ...details.mobile.checks,
-                    ].filter(check => !check.passed).length === 0 ? (
-                      <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
-                        <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                        <h3 className="text-lg font-bold text-green-800">Amazing job!</h3>
-                        <p className="text-green-700">No issues found on your website.</p>
-                      </div>
-                    ) : (
-                      [
-                        ...details.seo.checks,
-                        ...details.performance.checks,
-                        ...details.security.checks,
-                        ...details.mobile.checks,
-                      ]
-                        .filter(check => !check.passed)
-                        .sort((a, b) => (b.score || 0) - (a.score || 0))
-                        .map((check, i) => (
-                          <CheckItem key={i} check={check} />
-                        ))
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
+            {/* Note: Overview section removed as it's replaced by Header */}
 
             {/* SEO Section */}
-            <section ref={seoRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">SEO Analysis</h2>
-                  <p className="text-muted-foreground mt-1">Search Engine Optimization factors</p>
-                </div>
-                <ScoreGauge score={report.seoScore} size="md" showLabel={false} />
+            <section ref={seoRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">SEO</h2>
+                <p className="text-slate-500">Search Engine Optimization</p>
               </div>
-              <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
                 {details.seo.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -281,79 +200,51 @@ export default function ReportPage() {
             </section>
 
             {/* Performance Section */}
-            <section ref={performanceRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Performance Analysis</h2>
-                  <p className="text-muted-foreground mt-1">Speed and optimization factors</p>
-                </div>
-                <ScoreGauge score={report.performanceScore} size="md" showLabel={false} />
+            <section ref={performanceRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Performance</h2>
+                <p className="text-slate-500">Speed and optimization</p>
               </div>
-              <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
                 {details.performance.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
               </div>
             </section>
 
-            {/* Mobile Section */}
-            <section ref={mobileRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Mobile Analysis</h2>
-                  <p className="text-muted-foreground mt-1">Responsiveness and mobile-friendliness</p>
-                </div>
-                <ScoreGauge score={report.mobileScore} size="md" showLabel={false} />
-              </div>
-              <div className="space-y-4">
-                {details.mobile.checks.map((check, i) => (
-                  <CheckItem key={i} check={check} />
-                ))}
-              </div>
-            </section>
-
-            {/* Security Section */}
-            <section ref={securityRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Security Analysis</h2>
-                  <p className="text-muted-foreground mt-1">HTTPS and safety factors</p>
-                </div>
-                <ScoreGauge score={report.securityScore} size="md" showLabel={false} />
-              </div>
-              <div className="space-y-4">
-                {details.security.checks.map((check, i) => (
-                  <CheckItem key={i} check={check} />
-                ))}
-              </div>
-            </section>
-
             {/* Usability Section */}
-            <section ref={usabilityRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Usability Analysis</h2>
-                  <p className="text-muted-foreground mt-1">User experience factors</p>
-                </div>
-                <ScoreGauge score={report.usabilityScore} size="md" showLabel={false} />
+            <section ref={usabilityRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Usability</h2>
+                <p className="text-slate-500">User experience factors</p>
               </div>
-              <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
                 {details.usability.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
               </div>
             </section>
 
-            {/* Technologies Section */}
-            <section ref={technologiesRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Technologies</h2>
-                  <p className="text-muted-foreground mt-1">Tech stack and libraries</p>
-                </div>
-                <div className="text-2xl font-bold text-muted-foreground">Info</div>
+            {/* Mobile Section */}
+            <section ref={mobileRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Mobile</h2>
+                <p className="text-slate-500">Responsiveness checks</p>
               </div>
-              <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+                {details.mobile.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
+            {/* Technologies Section */}
+            <section ref={technologiesRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Technologies</h2>
+                <p className="text-slate-500">Tech stack detection</p>
+              </div>
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
                 {details.technologies.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -361,16 +252,26 @@ export default function ReportPage() {
             </section>
 
             {/* Social Section */}
-            <section ref={socialRef} className="scroll-mt-24 space-y-6">
-              <div className="bg-card rounded-2xl p-6 border border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Social Analysis</h2>
-                  <p className="text-muted-foreground mt-1">Social media presence</p>
-                </div>
-                <ScoreGauge score={report.socialScore} size="md" showLabel={false} />
+            <section ref={socialRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Social</h2>
+                <p className="text-slate-500">Social media presence</p>
               </div>
-              <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
                 {details.social.checks.map((check, i) => (
+                  <CheckItem key={i} check={check} />
+                ))}
+              </div>
+            </section>
+
+            {/* Security Section */}
+            <section ref={securityRef} className="scroll-mt-24">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Security</h2>
+                <p className="text-slate-500">HTTPS and safety</p>
+              </div>
+              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+                {details.security.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CheckResult } from "@shared/schema";
-import { CheckCircle2, XCircle, AlertTriangle, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, ChevronDown, ChevronUp, AlertCircle, Info, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -11,47 +11,49 @@ interface CheckItemProps {
 export function CheckItem({ check }: CheckItemProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Small status icon
   const getStatusIcon = () => {
-    if (check.passed) return <CheckCircle2 className="w-6 h-6 text-score-good flex-shrink-0" />;
-    if (check.score < 50) return <XCircle className="w-6 h-6 text-score-poor flex-shrink-0" />;
-    return <AlertTriangle className="w-6 h-6 text-score-average flex-shrink-0" />;
-  };
-
-  const getStatusBorder = () => {
-    if (check.passed) return "border-l-score-good";
-    if (check.score < 50) return "border-l-score-poor";
-    return "border-l-score-average";
+    if (check.passed) return <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />;
+    if (check.score < 50) return <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />;
+    return <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0" />;
   };
 
   return (
-    <div
-      className={cn(
-        "bg-card rounded-xl border border-border overflow-hidden transition-all duration-300 hover:shadow-md",
-        "border-l-4",
-        getStatusBorder()
-      )}
-    >
+    <div className="border-b border-border last:border-0 bg-white group">
       <div
-        className="p-5 flex items-start gap-4 cursor-pointer"
+        className={cn(
+          "flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-slate-50",
+          isOpen && "bg-slate-50"
+        )}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="mt-1">{getStatusIcon()}</div>
+        {/* Icon Column */}
+        <div className="w-8 flex justify-center">
+          {getStatusIcon()}
+        </div>
 
+        {/* Title Column */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-4">
-            <h4 className="text-lg font-semibold text-foreground leading-tight">{check.title}</h4>
-            <div className="flex items-center gap-3">
-              <span className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-bold",
-                check.passed ? "bg-green-100 text-green-700" :
-                  check.score < 50 ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"
-              )}>
-                {check.passed ? "PASSED" : check.score < 50 ? "CRITICAL" : "WARNING"}
-              </span>
-              {isOpen ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-            </div>
+          <div className="flex items-center gap-3">
+            <h4 className="text-sm font-semibold text-slate-700">{check.title}</h4>
+            {/* Dotted spacer could go here if we wanted strictly exactly like image, usually flex-grow is enough */}
           </div>
-          <p className="text-muted-foreground mt-1 text-sm line-clamp-1">{check.description}</p>
+        </div>
+
+        {/* Right Info Column (Badges + Chevron) */}
+        <div className="flex items-center gap-4">
+          {/* Show summary if closed? Or just badges */}
+          <div className="hidden sm:flex items-center gap-2">
+            {/* Preview of impact/difficulty for quick scanning */}
+            <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full text-slate-500 bg-slate-100")}>
+              {check.impact} Impact
+            </span>
+          </div>
+
+          {isOpen ?
+            <ChevronUp className="w-4 h-4 text-slate-400" /> :
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          }
         </div>
       </div>
 
@@ -62,42 +64,38 @@ export function CheckItem({ check }: CheckItemProps) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+            className="overflow-hidden bg-slate-50/50"
           >
-            <div className="px-5 pb-5 pt-0 ml-10 space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                  <span className={cn("w-2 h-2 rounded-full",
-                    check.impact === "high" ? "bg-red-500" :
-                      check.impact === "medium" ? "bg-yellow-500" : "bg-blue-500"
-                  )} />
-                  {check.impact} Impact
+            <div className="px-4 pb-6 pt-2 ml-12 lg:mr-12 border-t border-dashed border-border/50">
+              {/* Description */}
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Info className="w-3 h-3" /> Description
+                  </h5>
+                  <p className="text-sm text-slate-600 leading-relaxed">{check.description}</p>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                  <span className={cn("w-2 h-2 rounded-full",
-                    check.difficulty === "hard" ? "bg-red-500" :
-                      check.difficulty === "medium" ? "bg-yellow-500" : "bg-green-500"
-                  )} />
-                  {check.difficulty} Fix
-                </div>
+
+                {check.explanation && (
+                  <div>
+                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Info className="w-3 h-3" /> Concept
+                    </h5>
+                    <p className="text-sm text-slate-600 leading-relaxed">{check.explanation}</p>
+                  </div>
+                )}
               </div>
 
-              {check.explanation && (
-                <div className="text-sm text-foreground/80 leading-relaxed">
-                  <h5 className="font-semibold text-foreground mb-1">Concept</h5>
-                  {check.explanation}
-                </div>
-              )}
-
+              {/* Fix Advice */}
               {(check.howToFix || check.recommendation) && (
-                <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                <div className="bg-white rounded-lg border border-border p-5 mb-4 shadow-sm">
                   <div className="flex items-start gap-3">
-                    <div className="p-1 bg-primary/10 rounded-full mt-0.5">
-                      <AlertCircle className="w-4 h-4 text-primary" />
+                    <div className="p-1.5 bg-blue-50 text-blue-600 rounded-full mt-0.5">
+                      <AlertCircle className="w-4 h-4" />
                     </div>
                     <div>
-                      <h5 className="text-sm font-bold text-foreground mb-1">How to fix</h5>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <h5 className="text-sm font-bold text-slate-800 mb-1">How to fix</h5>
+                      <p className="text-sm text-slate-600 leading-relaxed">
                         {check.howToFix || check.recommendation}
                       </p>
                       {check.learnMoreUrl && (
@@ -105,9 +103,9 @@ export function CheckItem({ check }: CheckItemProps) {
                           href={check.learnMoreUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-block mt-2 text-xs font-bold text-primary hover:underline"
+                          className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-blue-600 hover:underline"
                         >
-                          Read more guide →
+                          Read detailed guide <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
                     </div>
@@ -115,23 +113,23 @@ export function CheckItem({ check }: CheckItemProps) {
                 </div>
               )}
 
+              {/* Technical Details */}
               {check.details && check.details.length > 0 && (
-                <div className="bg-slate-50 rounded-lg p-4 border border-border/50">
-                  <h5 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Technical Details</h5>
-                  <ul className="space-y-1">
+                <div>
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Technical Details</h5>
+                  <div className="bg-white rounded-lg border border-border divide-y divide-border">
                     {check.details.map((detail, idx) => (
-                      <li key={idx} className="text-sm font-mono text-slate-700 flex items-start gap-2">
-                        <span className="select-none text-slate-400">•</span>
-                        <span className="break-all">{detail}</span>
-                      </li>
+                      <div key={idx} className="px-4 py-2 text-sm font-mono text-slate-600">
+                        {detail}
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div >
+    </div>
   );
 }

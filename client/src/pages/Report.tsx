@@ -166,10 +166,10 @@ export default function ReportPage() {
                       key={tab.id}
                       onClick={() => scrollToSection(tab.id)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full",
+                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full border-b-2 lg:border-b-0 lg:border-l-2",
                         activeTab === tab.id
-                          ? "bg-slate-900 text-white shadow-sm"
-                          : "text-slate-600 hover:bg-slate-100"
+                          ? "border-green-500 bg-green-50/50 text-green-700"
+                          : "border-transparent text-slate-600 hover:bg-slate-50"
                       )}
                     >
                       {Icon && <Icon className="w-4 h-4" />}

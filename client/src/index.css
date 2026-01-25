@@ -1,76 +1,78 @@
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 210 20% 98%;    /* slate-50/50 approx */
-    --foreground: 222.2 84% 4.9%;
+    :root {
+        --background: 210 20% 98%;
+        /* slate-50/50 approx */
+        --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+        --primary: 221.2 83.2% 53.3%;
+        --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 221.2 83.2% 53.3%;
+        --radius: 0.5rem;
 
-    --score-good: 142 71% 45%;    /* green-600 */
-    --score-average: 37 90% 51%;  /* yellow-500 */
-    --score-poor: 0 84% 60%;      /* red-500 */
-  }
+        --score-good: 142 71% 45%;
+        /* green-600 */
+        --score-average: 37 90% 51%;
+        /* yellow-500 */
+        --score-poor: 0 84% 60%;
+        /* red-500 */
+    }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+        --primary: 217.2 91.2% 59.8%;
+        --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-  }
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 224.3 76.3% 48%;
+    }
 
-  body {
-    @apply bg-background text-foreground antialiased;
-  }
+    body {
+        @apply bg-background text-foreground antialiased;
+    }
 }
 
 @layer utilities {
@@ -81,12 +83,20 @@
 
 /* Print Optimization */
 @media print {
+    @page {
+        size: A4;
+        margin: 12mm 15mm;
+    }
+
     /* Hide non-essential UI */
-    header, 
-    nav, 
-    .scrollbar-hide, /* Sidebar nav container */
+    header,
+    nav,
+    .scrollbar-hide,
+    /* Sidebar nav container */
     button,
-    a[href^="/"] { /* Home links */
+    a[href^="/"],
+    /* Home links */
+    .print\:hidden {
         display: none !important;
     }
 
@@ -102,16 +112,53 @@
         padding: 0 !important;
     }
 
-    /* Hide sidebar explicitly if class selection is tricky */
     .lg\:col-span-3 {
         display: none !important;
     }
 
-    /* Force background colors */
-    body, .min-h-screen {
+    /* Professional scaling */
+    html {
+        font-size: 13px;
+        /* Slightly smaller base for print */
+    }
+
+    body {
         background: white !important;
+        color: black !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+    }
+
+    /* Clean up links - usually they print with (url) after them */
+    a[href]:after {
+        content: none !important;
+    }
+
+    /* Typography adjustments */
+    h1,
+    h2,
+    h3 {
+        color: #111 !important;
+        page-break-after: avoid;
+    }
+
+    p {
+        color: #333 !important;
+        line-height: 1.5;
+    }
+
+    /* Sections start with titles */
+    section {
+        margin-bottom: 24px;
+        page-break-inside: avoid;
+    }
+
+    /* Report Header adjustments */
+    /* Make screenshot smaller on print */
+    .aspect-video {
+        max-width: 400px;
+        margin: 0 auto;
+        border-color: #ddd !important;
     }
 
     /* Ensure CheckItems don't break awkwardly */
@@ -119,18 +166,23 @@
         page-break-inside: avoid;
     }
 
-    /* Expand all check items (Hack: Override inline styles/state) */
-    /* Note: This is tricky with React AnimatePresence. 
-       Ideally, we just make sure the closed view is detailed enough or we force a specific design.
-       For now, we just ensure clean layout. */
-    
-    /* Typography adjustments */
-    h1, h2, h3 { color: black !important; }
-    p { color: #333 !important; }
+    /* Force background visibility for status bars and scores */
+    .bg-green-500,
+    .bg-yellow-500,
+    .bg-red-500,
+    .bg-score-good,
+    .bg-score-average,
+    .bg-score-poor {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
     /* Remove shadows */
-    .shadow-sm, .shadow-md, .shadow-xl {
+    .shadow-sm,
+    .shadow-md,
+    .shadow-xl,
+    .shadow {
         box-shadow: none !important;
-        border: 1px solid #ddd !important;
+        border: 1px solid #eee !important;
     }
 }

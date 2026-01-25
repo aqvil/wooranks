@@ -116,7 +116,6 @@ export default function ReportPage() {
   };
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: null },
     { id: "seo", label: "SEO", icon: Search },
     { id: "performance", label: "Performance", icon: Zap },
     { id: "usability", label: "Usability", icon: MousePointerClick },
@@ -159,8 +158,6 @@ export default function ReportPage() {
               <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1 pb-2 lg:pb-0 scrollbar-hide">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
-                  // Skip overview tab in sidebar if we want pure section nav, or keep it
-                  if (tab.id === 'overview') return null;
 
                   return (
                     <button

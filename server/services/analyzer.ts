@@ -75,19 +75,25 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     if (title.length >= 10 && title.length <= 60) {
         seoChecks.push(createCheck(true, 10, "Title Tag", `Perfect length: ${title.length} chars`, "high", "easy",
             "The title tag is the most important on-page SEO element. It appears in search results and browser tabs.",
-            "Ensure your title is between 10-60 characters, includes your main keyword, and triggers clicks.",
+            "You're doing great! Keep keywords near the front.",
             undefined, [title]));
     } else if (title.length > 0) {
         seoScore -= 5;
         seoChecks.push(createCheck(false, 0, "Title Tag", `Length is ${title.length} chars (10-60 recommended)`, "high", "easy",
-            "The title tag is the most important on-page SEO element.",
-            "Rewrite your title to be between 10 and 60 characters. Avoid keyword stuffing.",
-            "Aim for 10-60 characters.", [title]));
+            "The title tag is the clickable headline in Google search results. If it's too long, it gets cut off (truncated). If it's too short, it wastes opportunity.",
+            `Update your HTML head:
+\`\`\`html
+<head>
+  <title>Your Keyword - Your Brand</title>
+</head>
+\`\`\`
+Aim for 50-60 characters.`,
+            "Optimize title length.", [title]));
     } else {
         seoScore -= 20;
         seoChecks.push(createCheck(false, 0, "Title Tag", "Missing title tag", "high", "easy",
-            "The title tag is crucial for search engines to understand your page context.",
-            "Add a `<title>` tag inside the `<head>` section of your HTML.",
+            "Without a title tag, search engines have to guess what your page is about, often resulting in \"Untitled\" or unrelated text links.",
+            "Add this inside your `<head>` tag immediately:\n```html\n<title>Primary Keyword | Brand Name</title>\n```",
             "Add a descriptive title tag."));
     }
 
@@ -95,19 +101,23 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     if (metaDesc.length >= 50 && metaDesc.length <= 160) {
         seoChecks.push(createCheck(true, 10, "Meta Description", `Perfect length: ${metaDesc.length} chars`, "high", "easy",
             "Meta descriptions summarize your page content for search engines and users.",
-            "Keep doing what you're doing. Ensure it's engaging to maximize click-through rates.",
+            "Excellent. Ensure it includes a call-to-action to maximize clicks.",
             undefined, [metaDesc]));
     } else if (metaDesc.length > 0) {
         seoScore -= 5;
         seoChecks.push(createCheck(false, 0, "Meta Description", `Length is ${metaDesc.length} chars (50-160 recommended)`, "high", "easy",
-            "Meta descriptions summarize your page content. Too short descriptions are ignored; too long ones are truncated.",
-            "Update your meta description to be between 50 and 160 characters.",
+            "Meta descriptions provide a summary in SERPs. Descriptions under 50 chars are too vague; over 160 get cut off.",
+            `Edit your page header:
+\`\`\`html
+<meta name="description" content="A brief, 160-character summary of your page content including keywords.">
+\`\`\`
+`,
             "Optimize description length.", [metaDesc]));
     } else {
         seoScore -= 20;
         seoChecks.push(createCheck(false, 0, "Meta Description", "Missing meta description", "high", "easy",
-            "Meta descriptions provide a summary in SERPs (Search Engine Result Pages). Without one, Google will pick random text.",
-            "Add a `<meta name='description' content='...' >` tag to your document head.",
+            "Missing descriptions mean Google will pull random text from your page, which looks messy in search results.",
+            "Add this to your `<head>`:\n```html\n<meta name=\"description\" content=\"Buy the best widgets online. Free shipping on all orders.\">\n```",
             "Add a meta description to improve CTR."));
     }
 
@@ -115,25 +125,34 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     if (h1Count === 1) {
         seoChecks.push(createCheck(true, 10, "Headings", "Exactly one H1 tag found.", "medium", "easy",
             "H1 tags indicate the main topic of your page. Having exactly one helps search engines understand the primary subject.",
-            "Maintain one unique H1 per page."));
+            "Perfect structure.",
+            undefined, [$("h1").first().text().substring(0, 50) + "..."]));
     } else {
         seoScore -= 10;
         seoChecks.push(createCheck(false, 0, "Headings", `Found ${h1Count} H1 tags`, "medium", "easy",
-            "H1 tags indicate the main topic. Multiple H1s can confuse search engines about the page's primary focus.",
-            "Ensure you have exactly one `<h1>` tag that identifies the main content of the page.",
+            "A page should have exactly one H1 tag to signal the main topic. Multiple H1s dilute relevance.",
+            `**Fix:**
+1. Find your main title and wrap it in \`<h1>...</h1>\`.
+2. Change other headings (subtitles) to \`<h2>\`, \`<h3>\`, etc.
+`,
             "Use exactly one H1 tag per page."));
     }
 
     // Canonical
     if (canonical) {
         seoChecks.push(createCheck(true, 5, "Canonical Tag", "Canonical tag is present.", "medium", "medium",
-            "Canonical tags prevent duplicate content issues by telling search engines which version of a URL is the master copy.",
-            "Ensure the href points to the correct, absolute URL of the page."));
+            "Canonical tags tell Google 'this is the main version of this page', preventing duplicate content penalties.",
+            "Good job.",
+            undefined, [canonical]));
     } else {
         seoScore -= 5;
         seoChecks.push(createCheck(false, 0, "Canonical Tag", "Missing canonical tag", "medium", "medium",
-            "Canonical tags help resolving duplicate content issues.",
-            "Add `<link rel='canonical' href='...' />` to the head of your page.",
+            "If users can access your site via `http`, `https`, `www`, and `non-www`, Google sees 4 duplicate sites.",
+            `Add this to your \`<head>\`:
+\`\`\`html
+<link rel="canonical" href="https://example.com/current-page" />
+\`\`\`
+`,
             "Add a canonical tag to prevent duplicate content."));
     }
 
@@ -145,7 +164,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     } else {
         seoChecks.push(createCheck(true, 5, "Robots.txt", "No robots meta tag (defaults to index, follow)", "medium", "easy",
             "Without a robots meta tag, search engines default to indexing the page and following links.",
-            "This is generally fine. If you want to restrict crawling, add a robots meta tag."));
+            "No action needed unless you want to hide this page."));
     }
 
     // NEW: Sitemap Detection (Heuristic Check in Logic - usually needs separate fetch)
@@ -160,7 +179,11 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         // Don't penalize too much as it might be in robots.txt
         seoChecks.push(createCheck(true, 0, "Sitemap Link", "No sitemap link found in HTML (check robots.txt)", "low", "easy",
             "A sitemap helps index your content. It is usually linked in the footer or declared in robots.txt.",
-            "Ensure you have a sitemap.xml and it is referenced in your robots.txt."));
+            `Ensure you have a line in your \`robots.txt\`:
+\`\`\`
+Sitemap: https://example.com/sitemap.xml
+\`\`\`
+`, "Ensure you have a sitemap.xml and it is referenced in your robots.txt."));
     }
 
     // NEW: Structured Data (JSON-LD)
@@ -173,7 +196,18 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         seoScore -= 10;
         seoChecks.push(createCheck(false, 0, "Structured Data", "No Schema.org data detected", "high", "hard",
             "Structured data allows you to provide explicit clues about the meaning of a page to Google.",
-            "Add JSON-LD script tags to describe your Organization, Product, Article, or Breadcrumbs.",
+            `Use a tool closer to your stack (e.g. \`schema-dts\`) or add a script tag:
+\`\`\`html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "url": "${url}",
+  "logo": "https://www.example.com/logo.png"
+}
+</script>
+\`\`\`
+`,
             "Implement Schema.org structured data."));
     }
 
@@ -194,7 +228,15 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         seoScore -= 10;
         seoChecks.push(createCheck(false, 0, "Image Alt Attributes", `${missingAlt} images missing alt text`, "medium", "easy",
             "Search engines cannot 'see' images. They rely on the alt attribute to understand the image context.",
-            "Add `alt='Description of image'` to all `<img>` tags.",
+            `Find your \`<img>\` tags and add the alt attribute:
+\`\`\`html
+<!-- Bad -->
+<img src="dog.jpg">
+
+<!-- Good -->
+<img src="dog.jpg" alt="A golden retriever playing fetch">
+\`\`\`
+`,
             "Add alt text to all images."));
     }
 
@@ -250,7 +292,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     }
 
     // NEW: Asset Minification (Heuristic)
-    const nonMinified = [];
+    const nonMinified: string[] = [];
     $('script[src]').each((_, el) => {
         const src = $(el).attr('src') || "";
         if (src.includes('.js') && !src.includes('.min.js') && !src.includes('cdn')) nonMinified.push(src);
@@ -266,9 +308,11 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
             "Keep using build tools that auto-minify your assets."));
     } else {
         performanceScore -= 10;
-        performanceChecks.push(createCheck(false, 0, "Asset Minification", `${nonMinified.length} assets potentially not minified.`, "medium", "medium",
-            "Non-minified files are larger than necessary.",
-            "Use a build tool (like Webpack, Vite, or Gulp) to minify CSS and JS files.",
+        performanceChecks.push(createCheck(false, 0, "Asset Minification", `${nonMinified.length} assets potentialy not minified.`, "medium", "medium",
+            "Minified files download faster.",
+            `**How to fix:**
+If using **Webpack/Vite**: Ensure you run the \`build\` command (e.g. \`npm run build\`) for production, which auto-minifies.
+If using raw CSS/JS: Use a tool like [Minifier.org](https://minifier.org).`,
             "Minify your CSS and JS assets.", nonMinified.slice(0, 5)));
     }
 
@@ -281,8 +325,20 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     } else {
         performanceScore -= 10;
         performanceChecks.push(createCheck(false, 0, "Compression", "Compression not detected", "high", "hard",
-            "Text-based resources (HTML, CSS, JS) should be compressed to save bandwidth.",
-            "Enable Gzip or Brotli compression in your web server configuration (Nginx/Apache/IIS).",
+            "Text-based resources (HTML, CSS, JS) should be compressed to save bandwidth. This is usually a server config.",
+            `**Nginx:**
+\`\`\`nginx
+gzip on;
+gzip_types text/plain text/css application/json application/javascript;
+\`\`\`
+
+**Apache:**
+\`\`\`apache
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript
+</IfModule>
+\`\`\`
+`,
             "Enable Gzip/Brotli."));
     }
 
@@ -300,7 +356,7 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         securityScore -= 40;
         securityChecks.push(createCheck(false, 0, "SSL/HTTPS", "Insecure connection (HTTP)", "high", "hard",
             "Google penalizes non-secure sites. Users will see a 'Not Secure' warning.",
-            "Install an SSL certificate (free via Let's Encrypt) and force HTTPS redirection.",
+            "Install a free SSL certificate from **Let's Encrypt** or use **Cloudflare**'s free tier to handle SSL for you.",
             "Enable HTTPS."));
     }
 
@@ -311,7 +367,9 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     else {
         securityScore -= 5; securityChecks.push(createCheck(false, 0, "HSTS", "HSTS header missing", "medium", "hard",
             "HTTP Strict Transport Security (HSTS) strengthens your SSL implementation.",
-            "Add the `Strict-Transport-Security` header to your server config.",
+            `Add this header to your server response:
+\`Strict-Transport-Security: max-age=31536000; includeSubDomains\`
+`,
             "Enable HSTS."));
     }
 
@@ -321,7 +379,9 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     else {
         securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Frame-Options", "Clickjacking protection missing", "medium", "medium",
             "Without this header, malicious sites could embed your site to trick users.",
-            "Set `X-Frame-Options` to `SAMEORIGIN` or `DENY`.",
+            `Add this header:
+\`X-Frame-Options: SAMEORIGIN\`
+`,
             "Add X-Frame-Options header."));
     }
 
@@ -331,7 +391,9 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
     else {
         securityScore -= 5; securityChecks.push(createCheck(false, 0, "X-Content-Type-Options", "MIME sniffing protection missing", "low", "easy",
             "This reduces exposure to drive-by downloads and media type confusion attacks.",
-            "Set `X-Content-Type-Options` to `nosniff`.",
+            `Add this header:
+\`X-Content-Type-Options: nosniff\`
+`,
             "Add X-Content-Type-Options header."));
     }
 
@@ -351,7 +413,11 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         mobileScore -= 40;
         mobileChecks.push(createCheck(false, 0, "Viewport", "Viewport tag missing/incorrect", "high", "easy",
             "Without a viewport tag, mobile browsers will render the desktop version and shrink it down, making it unreadable.",
-            "Add `<meta name='viewport' content='width=device-width, initial-scale=1'>` to your `<head>`.",
+            `Add this inside \`<head>\`:
+\`\`\`html
+<meta name="viewport" content="width=device-width, initial-scale=1">
+\`\`\`
+`,
             "Add width=device-width viewport tag."));
     }
 
@@ -370,7 +436,11 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         usabilityScore -= 20;
         usabilityChecks.push(createCheck(false, 0, "Favicon", "Favicon missing", "low", "easy",
             "Missing favicons look unprofessional and make it hard to find tabs.",
-            "Create a 16x16 or 32x32 icon and link it in your head with `<link rel='icon' ... >`."));
+            `Add a link to your icon in \`<head>\`:
+\`\`\`html
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+\`\`\`
+`, "Add a favicon."));
     }
 
     // Language
@@ -383,7 +453,11 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         usabilityScore -= 20;
         usabilityChecks.push(createCheck(false, 0, "Language", "Language attribute missing", "medium", "easy",
             "Without a language tag, browsers/tools assume default (often English) which might be wrong.",
-            "Add the `lang` attribute to your `<html>` tag, e.g., `<html lang='en'>`.",
+            `Update your opening HTML tag:
+\`\`\`html
+<html lang="en">
+\`\`\`
+`,
             "Specify language in html tag."));
     }
 
@@ -397,7 +471,14 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         // Optional, no penalty
         usabilityChecks.push(createCheck(true, 0, "Print Friendly", "No print stylesheet found (optional)", "low", "medium",
             "Not strictly required, but good for articles/recipes.",
-            "Add a CSS media query `@media print { ... }` to hide navigation and unnecessary elements."));
+            `Add a print block to your CSS:
+\`\`\`css
+@media print {
+  nav, footer, .ad { display: none; }
+  body { color: black; background: white; }
+}
+\`\`\`
+`));
     }
 
 
@@ -468,7 +549,13 @@ export async function analyzeUrl(url: string): Promise<InsertReport> {
         socialScore -= 10;
         socialChecks.push(createCheck(false, 0, "Open Graph", "Open Graph tags missing", "medium", "easy",
             "Without OG tags, social networks guess which image and title to use.",
-            "Add `<meta property='og:title' ... >` tags.",
+            `Add these tags to \`<head>\`:
+\`\`\`html
+<meta property="og:title" content="Your Title">
+<meta property="og:description" content="Description">
+<meta property="og:image" content="https://example.com/thumb.jpg">
+\`\`\`
+`,
             "Add OG tags for better sharing."));
     }
 

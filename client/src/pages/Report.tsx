@@ -43,6 +43,7 @@ export default function ReportPage() {
   };
 
   useEffect(() => {
+    // Robust scroll spy using IntersectionObserver with a defined "reading zone"
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -52,7 +53,9 @@ export default function ReportPage() {
         });
       },
       {
-        rootMargin: "-10% 0px -80% 0px", // Triggers when section is near top of viewport
+        // Reading zone: 100px from top of viewport, extending down to 50% of viewport
+        // This ensures that as soon as a section enters this "active strip", it highlights.
+        rootMargin: "-100px 0px -50% 0px",
         threshold: 0,
       }
     );

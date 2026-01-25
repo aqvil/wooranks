@@ -10,13 +10,16 @@ export const reports = pgTable("reports", {
   performanceScore: integer("performance_score").notNull(),
   securityScore: integer("security_score").notNull(),
   mobileScore: integer("mobile_score").notNull(),
+  technologiesScore: integer("technologies_score").notNull().default(0),
+  socialScore: integer("social_score").notNull().default(0),
+  usabilityScore: integer("usability_score").notNull().default(0),
   details: jsonb("details").notNull(), // Stores the detailed check results
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertReportSchema = createInsertSchema(reports).omit({ 
-  id: true, 
-  createdAt: true 
+export const insertReportSchema = createInsertSchema(reports).omit({
+  id: true,
+  createdAt: true
 });
 
 export type Report = typeof reports.$inferSelect;
@@ -51,6 +54,9 @@ export type AnalysisResult = {
   performance: AnalysisSection;
   security: AnalysisSection;
   mobile: AnalysisSection;
+  technologies: AnalysisSection;
+  social: AnalysisSection;
+  usability: AnalysisSection;
 };
 
 export type CreateAnalysisRequest = {

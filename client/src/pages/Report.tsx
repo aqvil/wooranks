@@ -43,28 +43,38 @@ export default function ReportPage() {
   };
 
   useEffect(() => {
-    // Robust scroll spy using IntersectionObserver with a defined "reading zone"
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id as any);
+    const handleScroll = () => {
+      const headerOffset = 250; // Trigger line approx 250px down (good for reading)
+      let currentActiveId: any = "seo"; // Default to top
+
+      // Order matches DOM order
+      const sections = [
+        { id: "seo", ref: seoRef },
+        { id: "performance", ref: performanceRef },
+        { id: "usability", ref: usabilityRef },
+        { id: "mobile", ref: mobileRef },
+        { id: "technologies", ref: technologiesRef },
+        { id: "social", ref: socialRef },
+        { id: "security", ref: securityRef },
+      ];
+
+      for (const section of sections) {
+        if (section.ref.current) {
+          const rect = section.ref.current.getBoundingClientRect();
+          // If the top of the section has scrolled up past the trigger line
+          if (rect.top <= headerOffset) {
+            currentActiveId = section.id;
           }
-        });
-      },
-      {
-        // Reading zone: 100px from top of viewport, extending down to 50% of viewport
-        // This ensures that as soon as a section enters this "active strip", it highlights.
-        rootMargin: "-100px 0px -50% 0px",
-        threshold: 0,
+        }
       }
-    );
 
-    Object.values(sectionRefs).forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
-    });
+      setActiveTab(currentActiveId);
+    };
 
-    return () => observer.disconnect();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check on mount
+
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToSection = (sectionId: keyof typeof sectionRefs) => {

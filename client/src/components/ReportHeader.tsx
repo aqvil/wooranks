@@ -11,14 +11,17 @@ export function ReportHeader({ report }: ReportHeaderProps) {
     const details = report.details as unknown as AnalysisResult;
 
     // Aggregate all checks
+    // Aggregate all checks safely (legacy reports might miss sections)
+    const getChecks = (section: any) => section?.checks || [];
+
     const allChecks: CheckResult[] = [
-        ...details.seo.checks,
-        ...details.performance.checks,
-        ...details.mobile.checks,
-        ...details.security.checks,
-        ...details.usability.checks,
-        ...details.social.checks,
-        ...details.technologies.checks,
+        ...getChecks(details.seo),
+        ...getChecks(details.performance),
+        ...getChecks(details.mobile),
+        ...getChecks(details.security),
+        ...getChecks(details.usability),
+        ...getChecks(details.social),
+        ...getChecks(details.technologies),
     ];
 
     const passedCount = allChecks.filter(c => c.passed).length;

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { CheckResult } from "@shared/schema";
 import { CheckCircle2, XCircle, AlertTriangle, ChevronDown, ChevronUp, AlertCircle, Info, ExternalLink } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -87,13 +89,9 @@ export function CheckItem({ check }: CheckItemProps) {
                 <div className="mb-4">
                   <h5 className="text-sm font-bold text-slate-800 mb-2">How to fix</h5>
                   <div className="prose prose-sm max-w-none text-slate-600">
-                    {/* We render this as simple text or markdown if we had a renderer. 
-                            For now, assuming plain text or pre-formatted. 
-                            If it has code blocks (backticks), we might want basic formatting.
-                        */}
-                    <div className="whitespace-pre-wrap font-mono text-xs bg-white p-4 rounded border border-border">
-                      {check.howToFix || check.recommendation}
-                    </div>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {check.howToFix || check.recommendation || ""}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}

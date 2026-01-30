@@ -150,7 +150,7 @@ export default function ReportPage() {
               <Link href="/" className="p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors">
                 <ArrowLeft className="w-5 h-5 text-slate-500" />
               </Link>
-              <h1 className="text-sm font-semibold text-slate-500">Back to Home</h1>
+              <span className="text-sm font-semibold text-slate-500">Back to Home</span>
             </div>
 
             <a href={report.url} target="_blank" rel="noopener" className="text-sm font-medium text-slate-900 truncate max-w-md">

@@ -1,6 +1,7 @@
 import { Report, AnalysisResult, CheckResult } from "@shared/schema";
 import { ScoreGauge } from "@/components/ScoreGauge";
-import { CheckCircle2, AlertTriangle, XCircle, Download, ExternalLink } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Download, ExternalLink, RotateCw, Loader2 } from "lucide-react";
+import { useAnalyze } from "@/hooks/use-reports";
 import { cn } from "@/lib/utils";
 
 interface ReportHeaderProps {
@@ -9,6 +10,7 @@ interface ReportHeaderProps {
 
 export function ReportHeader({ report }: ReportHeaderProps) {
     const details = report.details as unknown as AnalysisResult;
+    const { mutate: analyze, isPending: isRefreshing } = useAnalyze();
 
     // Aggregate all checks
     // Aggregate all checks safely (legacy reports might miss sections)
@@ -108,6 +110,14 @@ export function ReportHeader({ report }: ReportHeaderProps) {
 
                     {/* Actions */}
                     <div className="flex gap-2 print:hidden">
+                        <button
+                            onClick={() => analyze({ url: report.url })}
+                            disabled={isRefreshing}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-slate-50 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCw className="w-4 h-4" />}
+                            Refresh
+                        </button>
                         <button
                             onClick={() => window.print()}
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-slate-50 transition-colors"

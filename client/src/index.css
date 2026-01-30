@@ -202,3 +202,15 @@
         border: 1px solid #eee !important;
     }
 }
+
+@layer components {
+
+    /* Remove default backticks from prose inline code */
+    .prose code::before {
+        content: "" !important;
+    }
+
+    .prose code::after {
+        content: "" !important;
+    }
+}

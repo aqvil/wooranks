@@ -141,31 +141,45 @@ export default function ReportPage() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      {/* Flattened Header style - kept simple as we moved logic to ReportHeader */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-border shadow-sm">
+    <div className="min-h-screen bg-background font-sans selection:bg-foreground selection:text-background">
+      {/* Grid Pattern Background */}
+      <div className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      <div className="dark:hidden fixed inset-0 z-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Link href="/" className="p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors">
-                <ArrowLeft className="w-5 h-5 text-slate-500" />
+              <Link href="/" className="flex items-center gap-2 p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors group">
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="text-sm font-medium">Back</span>
               </Link>
-              <span className="text-sm font-semibold text-slate-500">Back to Home</span>
             </div>
 
-            <a href={report.url} target="_blank" rel="noopener" className="text-sm font-medium text-slate-900 truncate max-w-md">
+            <a href={report.url} target="_blank" rel="noopener" className="text-sm font-mono text-muted-foreground hover:text-foreground transition-colors truncate max-w-md">
               {report.url}
             </a>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* NEW HEADER COMPONENT */}
         <ReportHeader report={report} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
           {/* Sidebar Navigation */}
           <div className="lg:col-span-3">
@@ -179,10 +193,10 @@ export default function ReportPage() {
                       key={tab.id}
                       onClick={() => scrollToSection(tab.id)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap lg:w-full border-b-4 lg:border-b-0 lg:border-l-4",
+                        "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap lg:w-full border-l-2",
                         activeTab === tab.id
-                          ? "border-green-500 bg-green-50/50 text-green-700"
-                          : "border-transparent text-slate-600 hover:bg-slate-50"
+                          ? "border-foreground text-foreground bg-secondary/50"
+                          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                       )}
                     >
                       {Icon && <Icon className="w-4 h-4" />}
@@ -195,16 +209,16 @@ export default function ReportPage() {
           </div>
 
           {/* Main Content Area - Scrolling Sections */}
-          <div className="lg:col-span-9 space-y-12 pb-24">
+          <div className="lg:col-span-9 space-y-16 pb-24">
             {/* Note: Overview section removed as it's replaced by Header */}
 
             {/* SEO Section */}
             <section id="seo" ref={seoRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">SEO</h2>
-                <p className="text-slate-500">Search Engine Optimization</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">SEO</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_SEO_OPTIMIZATION</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.seo.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -213,11 +227,11 @@ export default function ReportPage() {
 
             {/* Performance Section */}
             <section id="performance" ref={performanceRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Performance</h2>
-                <p className="text-slate-500">Speed and optimization</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Performance</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_PERFORMANCE_METRICS</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.performance.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -226,11 +240,11 @@ export default function ReportPage() {
 
             {/* Usability Section */}
             <section id="usability" ref={usabilityRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Usability</h2>
-                <p className="text-slate-500">User experience factors</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Usability</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_USER_EXPERIENCE</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.usability.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -239,11 +253,11 @@ export default function ReportPage() {
 
             {/* Mobile Section */}
             <section id="mobile" ref={mobileRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Mobile</h2>
-                <p className="text-slate-500">Responsiveness checks</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Mobile</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_RESPONSIVENESS</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.mobile.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -252,11 +266,11 @@ export default function ReportPage() {
 
             {/* Technologies Section */}
             <section id="technologies" ref={technologiesRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Technologies</h2>
-                <p className="text-slate-500">Tech stack detection</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Technologies</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_TECH_STACK</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.technologies.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -265,11 +279,11 @@ export default function ReportPage() {
 
             {/* Social Section */}
             <section id="social" ref={socialRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Social</h2>
-                <p className="text-slate-500">Social media presence</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Social</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_SOCIAL_PRESENCE</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.social.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}
@@ -278,11 +292,11 @@ export default function ReportPage() {
 
             {/* Security Section */}
             <section id="security" ref={securityRef} className="scroll-mt-24">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Security</h2>
-                <p className="text-slate-500">HTTPS and safety</p>
+              <div className="mb-6 pb-4 border-b border-border">
+                <h2 className="text-2xl font-bold tracking-tight">Security</h2>
+                <p className="text-muted-foreground font-mono text-sm mt-1">MODULE_SECURITY_PROTOCOLS</p>
               </div>
-              <div className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="bg-card border border-border">
                 {details.security.checks.map((check, i) => (
                   <CheckItem key={i} check={check} />
                 ))}

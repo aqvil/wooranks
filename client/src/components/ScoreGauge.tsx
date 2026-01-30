@@ -41,7 +41,8 @@ export function ScoreGauge({ score, size = "md", label, showLabel = true }: Scor
             cx={dim / 2}
             cy={dim / 2}
             r={radius}
-            stroke="#e2e8f0" // slate-200
+            stroke="currentColor"
+            className="text-secondary"
             strokeWidth={stroke}
             fill="transparent"
           />
@@ -60,7 +61,7 @@ export function ScoreGauge({ score, size = "md", label, showLabel = true }: Scor
             strokeLinecap="round"
           />
         </svg>
-        <div className={`absolute inset-0 flex items-center justify-center font-bold ${fontSize} ${getScoreColor(score)}`}>
+        <div className={`absolute inset-0 flex items-center justify-center font-bold tracking-tighter ${fontSize} ${getScoreColor(score)}`}>
           {Math.round(score)}
         </div>
       </div>

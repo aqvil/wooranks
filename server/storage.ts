@@ -14,6 +14,23 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async createReport(report: InsertReport): Promise<Report> {
+    const [existing] = await db
+      .select()
+      .from(reports)
+      .where(eq(reports.url, report.url));
+
+    if (existing) {
+      const [updated] = await db
+        .update(reports)
+        .set({
+          ...report,
+          createdAt: new Date(),
+        })
+        .where(eq(reports.id, existing.id))
+        .returning();
+      return updated;
+    }
+
     const [newReport] = await db.insert(reports).values(report).returning();
     return newReport;
   }

@@ -240,16 +240,38 @@ Sitemap: https://example.com/sitemap.xml
     }
 
     // INTERNAL/EXTERNAL LINKS
-    const links = $('a');
-    const internalLinks = links.filter((_, el) => {
+    const collectedLinks: string[] = [];
+
+    // 1. Standard Links
+    $('a').each((_, el) => {
         const href = $(el).attr('href');
-        return href?.startsWith('/') || href?.includes(new URL(url).hostname) || false;
+        if (href) collectedLinks.push(href);
+    });
+
+    // 2. Noscript Links (for SPAs)
+    $('noscript').each((_, el) => {
+        try {
+            const noscriptHtml = $(el).text();
+            if (noscriptHtml) {
+                const $ns = cheerio.load(noscriptHtml);
+                $ns('a').each((_, link) => {
+                    const href = $ns(link).attr('href');
+                    if (href) collectedLinks.push(href);
+                });
+            }
+        } catch (e) {
+            // ignore
+        }
+    });
+
+    const internalLinks = collectedLinks.filter(href => {
+        return href.startsWith('/') || href.includes(new URL(url).hostname);
     }).length;
 
-    seoChecks.push(createCheck(true, 100, "Link Analysis", `Found ${links.length} total links`, "low", "medium",
+    seoChecks.push(createCheck(true, 100, "Link Analysis", `Found ${collectedLinks.length} total links`, "low", "medium",
         "Links determine the structure of your site and how value (link juice) flows.",
         "Ensure a healthy ratio of internal to external links.",
-        undefined, [`Internal: ${internalLinks}`, `External: ${links.length - internalLinks}`]));
+        undefined, [`Internal: ${internalLinks}`, `External: ${collectedLinks.length - internalLinks}`]));
 
 
     // ==========================================
@@ -501,13 +523,10 @@ gzip_types text/plain text/css application/json application/javascript;
     const socialDomains = ['facebook.com', 'twitter.com', 'x.com', 'linkedin.com', 'instagram.com', 'youtube.com', 'tiktok.com', 'github.com', 'threads.net', 'discord.com'];
     const foundSocials: string[] = [];
 
-    links.each((_, el) => {
-        const href = $(el).attr('href');
-        if (href) {
-            for (const domain of socialDomains) {
-                if (href.includes(domain) && !foundSocials.includes(domain)) {
-                    foundSocials.push(domain);
-                }
+    collectedLinks.forEach(href => {
+        for (const domain of socialDomains) {
+            if (href.includes(domain) && !foundSocials.includes(domain)) {
+                foundSocials.push(domain);
             }
         }
     });

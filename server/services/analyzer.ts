@@ -498,7 +498,7 @@ gzip_types text/plain text/css application/json application/javascript;
     // ==========================================
     const socialChecks: CheckResult[] = [];
 
-    const socialDomains = ['facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com', 'youtube.com', 'tiktok.com'];
+    const socialDomains = ['facebook.com', 'twitter.com', 'x.com', 'linkedin.com', 'instagram.com', 'youtube.com', 'tiktok.com', 'github.com', 'threads.net', 'discord.com'];
     const foundSocials: string[] = [];
 
     links.each((_, el) => {
